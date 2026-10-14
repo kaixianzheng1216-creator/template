@@ -3,12 +3,10 @@ from typing import Any
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from app.api.deps import SessionDep
-from app.core.security import get_password_hash
-from app.models import (
-    User,
-    UserPublic,
-)
+from app.auth.dependencies import SessionDep
+from app.users import service
+from app.users.models import User
+from app.users.schemas import UserPublic
 
 router = APIRouter(tags=["private"], prefix="/private")
 
@@ -17,22 +15,14 @@ class PrivateUserCreate(BaseModel):
     username: str
     password: str
     full_name: str
-    is_verified: bool = False
 
 
 @router.post("/users/", response_model=UserPublic)
 def create_user(user_in: PrivateUserCreate, session: SessionDep) -> Any:
-    """
-    Create a new user.
-    """
-
-    user = User(
+    user: User = service.create_development_user(
+        session=session,
         username=user_in.username,
+        password=user_in.password,
         full_name=user_in.full_name,
-        hashed_password=get_password_hash(user_in.password),
     )
-
-    session.add(user)
-    session.commit()
-
     return user
