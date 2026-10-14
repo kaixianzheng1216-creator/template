@@ -27,3 +27,23 @@ services:
           action: rebuild
     environment:
       FASTAPI_ENV: "development"
+
+  frontend:
+    ports:
+      - "3000:3000"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: development
+    develop:
+      watch:
+        - path: ./frontend
+          action: sync
+          target: /app
+          ignore:
+            - ./frontend/.next
+            - ./frontend/node_modules
+        - path: ./frontend/package.json
+          action: rebuild
+        - path: ./frontend/pnpm-lock.yaml
+          action: rebuild

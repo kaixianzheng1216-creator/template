@@ -1,6 +1,6 @@
 # FastAPI 项目——Docker Compose 部署指南
 
-可以使用 Docker Compose 将项目部署到自己的远程服务器。应用通过 `8000` 端口提供服务。
+可以使用 Docker Compose 将项目部署到自己的远程服务器。前端使用 `3000` 端口，后端 API 使用 `8000` 端口。
 
 ## 准备工作
 
@@ -105,5 +105,7 @@ Runner 上线后，打开仓库的 **Actions** 选项卡，选择 **Deploy with 
 ## 访问地址
 
 后端 API：`http://your-server.example.com:8000`
+
+前端：`http://your-server.example.com:3000`
 
 交互式 API 文档：`http://your-server.example.com:8000/docs`

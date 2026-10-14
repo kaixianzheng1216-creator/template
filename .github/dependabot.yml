@@ -31,9 +31,25 @@ updates:
       python-packages:
         patterns:
           - "*"
+  # pnpm
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ⬆
+    labels: [dependencies, internal]
+    groups:
+      frontend-packages:
+        patterns:
+          - "*"
   # Docker
   - package-ecosystem: docker
-    directory: /backend
+    directories:
+      - /backend
+      - /frontend
     schedule:
       interval: "monthly"
     cooldown:

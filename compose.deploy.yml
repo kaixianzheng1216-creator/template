@@ -9,3 +9,8 @@ services:
       - "8000:8000"
     environment:
       FRONTEND_HOST: ${FRONTEND_HOST:?Variable not set}
+
+  frontend:
+    restart: always
+    ports:
+      - "3000:3000"

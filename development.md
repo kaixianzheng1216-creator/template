@@ -2,7 +2,7 @@
 
 ## 本地开发
 
-本地开发时，通过 Docker Compose 运行 PostgreSQL，并在本机运行 FastAPI 开发服务器。
+本地开发时，通过 Docker Compose 运行 PostgreSQL，并分别运行 FastAPI 与 Next.js 开发服务器。
 
 启动依赖服务：
 
@@ -29,9 +29,21 @@ uv run fastapi dev
 
 由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
 
-## 使用 Docker Compose 运行后端
+另开一个终端启动前端：
 
-要在 Docker Compose 中运行后端，请执行：
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
+
+前端地址：<http://localhost:3000>
+
+Next.js 会把 `/api/*` 请求代理到 `BACKEND_URL`，本地默认是 `http://localhost:8000`。
+
+## 使用 Docker Compose 运行完整应用
+
+要在 Docker Compose 中运行数据库、后端和前端，请执行：
 
 ```bash
 docker compose run --rm backend bash scripts/prestart.sh
@@ -41,6 +53,8 @@ docker compose watch
 现在可以访问以下地址：
 
 后端 API：<http://localhost:8000>
+
+前端：<http://localhost:3000>
 
 由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
 

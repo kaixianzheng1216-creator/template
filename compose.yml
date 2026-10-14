@@ -37,5 +37,26 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+
+  frontend:
+    image: template-frontend:latest
+    depends_on:
+      backend:
+        condition: service_healthy
+        restart: true
+    environment:
+      BACKEND_URL: http://backend:8000
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        BACKEND_URL: http://backend:8000
+
 volumes:
   app-db-data:
