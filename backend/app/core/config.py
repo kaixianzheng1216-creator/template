@@ -9,6 +9,8 @@ from pydantic import (
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.core.exceptions import DefaultSecretError
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -54,15 +56,12 @@ class Settings(BaseSettings):
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
-            message = (
-                f'{var_name} 的值为 "changethis"，'
-                "出于安全考虑，请至少在部署前修改该值。"
-            )
+            error = DefaultSecretError(var_name)
 
             if self.FASTAPI_ENV == "development":
-                warnings.warn(message, stacklevel=1)
+                warnings.warn(str(error), stacklevel=1)
             else:
-                raise ValueError(message)
+                raise error
 
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:

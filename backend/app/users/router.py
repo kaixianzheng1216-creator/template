@@ -1,17 +1,15 @@
 import uuid
-from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, func, select
+from fastapi import APIRouter, Depends
 
 from app.auth.dependencies import (
     CurrentUser,
     SessionDep,
     get_current_active_superuser,
 )
-from app.core.security import get_password_hash, verify_password
 from app.schemas import Message
 from app.users import service
+from app.users.constants import UserMessage
 from app.users.models import User
 from app.users.schemas import (
     UpdatePassword,
@@ -31,12 +29,8 @@ router = APIRouter(prefix="/users", tags=["users"])
     dependencies=[Depends(get_current_active_superuser)],
     response_model=UsersPublic,
 )
-def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
-    count = session.exec(select(func.count()).select_from(User)).one()
-
-    users = session.exec(
-        select(User).order_by(col(User.created_at).desc()).offset(skip).limit(limit)
-    ).all()
+def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> UsersPublic:
+    users, count = service.list_users(session=session, skip=skip, limit=limit)
 
     response = UsersPublic(
         data=[UserPublic.model_validate(user) for user in users],
@@ -51,13 +45,7 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     dependencies=[Depends(get_current_active_superuser)],
     response_model=UserPublic,
 )
-def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
-    if service.get_user_by_username(session=session, username=user_in.username):
-        raise HTTPException(
-            status_code=400,
-            detail="该用户名已存在",
-        )
-
+def create_user(*, session: SessionDep, user_in: UserCreate) -> User:
     user = service.create_user(session=session, user_create=user_in)
 
     return user
@@ -65,86 +53,55 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
 
 @router.patch("/me", response_model=UserPublic)
 def update_user_me(
-    *, session: SessionDep, user_in: UserUpdateMe, current_user: CurrentUser
-) -> Any:
-    if user_in.username:
-        existing_user = service.get_user_by_username(
-            session=session,
-            username=user_in.username,
-        )
+    *,
+    session: SessionDep,
+    user_in: UserUpdateMe,
+    current_user: CurrentUser,
+) -> User:
+    user = service.update_current_user(
+        session=session,
+        current_user=current_user,
+        user_in=user_in,
+    )
 
-        if existing_user and existing_user.id != current_user.id:
-            raise HTTPException(
-                status_code=409,
-                detail="该用户名已存在",
-            )
-
-    current_user.sqlmodel_update(user_in.model_dump(exclude_unset=True))
-    session.add(current_user)
-    session.commit()
-    session.refresh(current_user)
-
-    return current_user
+    return user
 
 
 @router.patch("/me/password", response_model=Message)
 def update_password_me(
-    *, session: SessionDep, body: UpdatePassword, current_user: CurrentUser
-) -> Any:
-    verified, _ = verify_password(body.current_password, current_user.hashed_password)
-    if not verified:
-        raise HTTPException(status_code=400, detail="当前密码错误")
+    *,
+    session: SessionDep,
+    body: UpdatePassword,
+    current_user: CurrentUser,
+) -> Message:
+    service.update_password(
+        session=session,
+        current_user=current_user,
+        password_in=body,
+    )
 
-    if body.current_password == body.new_password:
-        raise HTTPException(
-            status_code=400,
-            detail="新密码不能与当前密码相同",
-        )
-
-    current_user.hashed_password = get_password_hash(body.new_password)
-
-    session.add(current_user)
-    session.commit()
-
-    response = Message(message="密码修改成功")
+    response = Message(message=UserMessage.PASSWORD_UPDATED)
 
     return response
 
 
 @router.get("/me", response_model=UserPublic)
-def read_user_me(current_user: CurrentUser) -> Any:
+def read_user_me(current_user: CurrentUser) -> User:
     return current_user
 
 
 @router.delete("/me", response_model=Message)
-def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
-    if current_user.is_superuser:
-        raise HTTPException(
-            status_code=403,
-            detail="超级用户不能删除自己的账号",
-        )
+def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Message:
+    service.delete_current_user(session=session, current_user=current_user)
 
-    session.delete(current_user)
-    session.commit()
-
-    response = Message(message="用户删除成功")
+    response = Message(message=UserMessage.USER_DELETED)
 
     return response
 
 
 @router.post("/signup", response_model=UserPublic)
-def register_user(session: SessionDep, user_in: UserRegister) -> Any:
-    if service.get_user_by_username(session=session, username=user_in.username):
-        raise HTTPException(
-            status_code=400,
-            detail="该用户名已存在",
-        )
-
-    user_create = UserCreate.model_validate(user_in)
-    user = service.create_user(
-        session=session,
-        user_create=user_create,
-    )
+def register_user(session: SessionDep, user_in: UserRegister) -> User:
+    user = service.register_user(session=session, user_in=user_in)
 
     return user
 
@@ -154,19 +111,12 @@ def read_user_by_id(
     user_id: uuid.UUID,
     session: SessionDep,
     current_user: CurrentUser,
-) -> Any:
-    user = session.get(User, user_id)
-    if user == current_user:
-        return user
-
-    if not current_user.is_superuser:
-        raise HTTPException(
-            status_code=403,
-            detail="当前用户权限不足",
-        )
-
-    if user is None:
-        raise HTTPException(status_code=404, detail="用户不存在")
+) -> User:
+    user = service.get_user_by_id(
+        session=session,
+        current_user=current_user,
+        user_id=user_id,
+    )
 
     return user
 
@@ -181,34 +131,14 @@ def update_user(
     session: SessionDep,
     user_id: uuid.UUID,
     user_in: UserUpdate,
-) -> Any:
-    user = session.get(User, user_id)
-
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail="用户不存在",
-        )
-
-    if user_in.username:
-        existing_user = service.get_user_by_username(
-            session=session,
-            username=user_in.username,
-        )
-
-        if existing_user and existing_user.id != user_id:
-            raise HTTPException(
-                status_code=409,
-                detail="该用户名已存在",
-            )
-
-    updated_user = service.update_user(
+) -> User:
+    user = service.update_user(
         session=session,
-        user=user,
+        user_id=user_id,
         user_in=user_in,
     )
 
-    return updated_user
+    return user
 
 
 @router.delete(
@@ -220,19 +150,12 @@ def delete_user(
     current_user: CurrentUser,
     user_id: uuid.UUID,
 ) -> Message:
-    user = session.get(User, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="用户不存在")
+    service.delete_user(
+        session=session,
+        current_user=current_user,
+        user_id=user_id,
+    )
 
-    if user == current_user:
-        raise HTTPException(
-            status_code=403,
-            detail="超级用户不能删除自己的账号",
-        )
-
-    session.delete(user)
-    session.commit()
-
-    response = Message(message="用户删除成功")
+    response = Message(message=UserMessage.USER_DELETED)
 
     return response
