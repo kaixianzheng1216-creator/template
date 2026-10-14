@@ -33,13 +33,17 @@ router = APIRouter(prefix="/users", tags=["users"])
 )
 def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     count = session.exec(select(func.count()).select_from(User)).one()
+
     users = session.exec(
         select(User).order_by(col(User.created_at).desc()).offset(skip).limit(limit)
     ).all()
-    return UsersPublic(
+
+    response = UsersPublic(
         data=[UserPublic.model_validate(user) for user in users],
         count=count,
     )
+
+    return response
 
 
 @router.post(
@@ -51,9 +55,12 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     if service.get_user_by_username(session=session, username=user_in.username):
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system.",
+            detail="该用户名已存在",
         )
-    return service.create_user(session=session, user_create=user_in)
+
+    user = service.create_user(session=session, user_create=user_in)
+
+    return user
 
 
 @router.patch("/me", response_model=UserPublic)
@@ -65,16 +72,18 @@ def update_user_me(
             session=session,
             username=user_in.username,
         )
+
         if existing_user and existing_user.id != current_user.id:
             raise HTTPException(
                 status_code=409,
-                detail="User with this username already exists",
+                detail="该用户名已存在",
             )
 
     current_user.sqlmodel_update(user_in.model_dump(exclude_unset=True))
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
+
     return current_user
 
 
@@ -84,17 +93,22 @@ def update_password_me(
 ) -> Any:
     verified, _ = verify_password(body.current_password, current_user.hashed_password)
     if not verified:
-        raise HTTPException(status_code=400, detail="Incorrect password")
+        raise HTTPException(status_code=400, detail="当前密码错误")
+
     if body.current_password == body.new_password:
         raise HTTPException(
             status_code=400,
-            detail="New password cannot be the same as the current one",
+            detail="新密码不能与当前密码相同",
         )
 
     current_user.hashed_password = get_password_hash(body.new_password)
+
     session.add(current_user)
     session.commit()
-    return Message(message="Password updated successfully")
+
+    response = Message(message="密码修改成功")
+
+    return response
 
 
 @router.get("/me", response_model=UserPublic)
@@ -107,11 +121,15 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     if current_user.is_superuser:
         raise HTTPException(
             status_code=403,
-            detail="Super users are not allowed to delete themselves",
+            detail="超级用户不能删除自己的账号",
         )
+
     session.delete(current_user)
     session.commit()
-    return Message(message="User deleted successfully")
+
+    response = Message(message="用户删除成功")
+
+    return response
 
 
 @router.post("/signup", response_model=UserPublic)
@@ -119,12 +137,16 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     if service.get_user_by_username(session=session, username=user_in.username):
         raise HTTPException(
             status_code=400,
-            detail="The user with this username already exists in the system",
+            detail="该用户名已存在",
         )
-    return service.create_user(
+
+    user_create = UserCreate.model_validate(user_in)
+    user = service.create_user(
         session=session,
-        user_create=UserCreate.model_validate(user_in),
+        user_create=user_create,
     )
+
+    return user
 
 
 @router.get("/{user_id}", response_model=UserPublic)
@@ -136,13 +158,16 @@ def read_user_by_id(
     user = session.get(User, user_id)
     if user == current_user:
         return user
+
     if not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
-            detail="The user doesn't have enough privileges",
+            detail="当前用户权限不足",
         )
+
     if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="用户不存在")
+
     return user
 
 
@@ -158,22 +183,32 @@ def update_user(
     user_in: UserUpdate,
 ) -> Any:
     user = session.get(User, user_id)
+
     if not user:
         raise HTTPException(
             status_code=404,
-            detail="The user with this id does not exist in the system",
+            detail="用户不存在",
         )
+
     if user_in.username:
         existing_user = service.get_user_by_username(
             session=session,
             username=user_in.username,
         )
+
         if existing_user and existing_user.id != user_id:
             raise HTTPException(
                 status_code=409,
-                detail="User with this username already exists",
+                detail="该用户名已存在",
             )
-    return service.update_user(session=session, user=user, user_in=user_in)
+
+    updated_user = service.update_user(
+        session=session,
+        user=user,
+        user_in=user_in,
+    )
+
+    return updated_user
 
 
 @router.delete(
@@ -187,12 +222,17 @@ def delete_user(
 ) -> Message:
     user = session.get(User, user_id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="用户不存在")
+
     if user == current_user:
         raise HTTPException(
             status_code=403,
-            detail="Super users are not allowed to delete themselves",
+            detail="超级用户不能删除自己的账号",
         )
+
     session.delete(user)
     session.commit()
-    return Message(message="User deleted successfully")
+
+    response = Message(message="用户删除成功")
+
+    return response

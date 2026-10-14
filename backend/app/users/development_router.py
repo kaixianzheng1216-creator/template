@@ -25,4 +25,5 @@ def create_user(user_in: PrivateUserCreate, session: SessionDep) -> Any:
         password=user_in.password,
         full_name=user_in.full_name,
     )
+
     return user

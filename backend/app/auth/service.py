@@ -10,11 +10,13 @@ DUMMY_HASH = "$argon2id$v=19$m=65536,t=3,p=4$MjQyZWE1MzBjYjJlZTI0Yw$YTU4NGM5ZTZm
 
 def authenticate(*, session: Session, username: str, password: str) -> User | None:
     user = users_service.get_user_by_username(session=session, username=username)
+
     if not user:
         verify_password(password, DUMMY_HASH)
         return None
 
     verified, updated_password_hash = verify_password(password, user.hashed_password)
+
     if not verified:
         return None
 
@@ -23,4 +25,5 @@ def authenticate(*, session: Session, username: str, password: str) -> User | No
         session.add(user)
         session.commit()
         session.refresh(user)
+
     return user

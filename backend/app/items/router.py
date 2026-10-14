@@ -16,10 +16,13 @@ def _get_accessible_item(
     *, session: SessionDep, current_user: CurrentUser, item_id: uuid.UUID
 ) -> Item:
     item = session.get(Item, item_id)
+
     if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
+        raise HTTPException(status_code=404, detail="条目不存在")
+
     if not current_user.is_superuser and item.owner_id != current_user.id:
-        raise HTTPException(status_code=403, detail="Not enough permissions")
+        raise HTTPException(status_code=403, detail="没有足够的权限")
+
     return item
 
 
@@ -37,10 +40,13 @@ def read_items(
         skip=skip,
         limit=limit,
     )
-    return ItemsPublic(
+
+    response = ItemsPublic(
         data=[ItemPublic.model_validate(item) for item in items],
         count=count,
     )
+
+    return response
 
 
 @router.get("/{id}", response_model=ItemPublic)
@@ -49,22 +55,26 @@ def read_item(
     current_user: CurrentUser,
     id: uuid.UUID,
 ) -> Any:
-    return _get_accessible_item(
+    item = _get_accessible_item(
         session=session,
         current_user=current_user,
         item_id=id,
     )
+
+    return item
 
 
 @router.post("/", response_model=ItemPublic)
 def create_item(
     *, session: SessionDep, current_user: CurrentUser, item_in: ItemCreate
 ) -> Any:
-    return service.create_item(
+    item = service.create_item(
         session=session,
         item_in=item_in,
         owner_id=current_user.id,
     )
+
+    return item
 
 
 @router.put("/{id}", response_model=ItemPublic)
@@ -80,7 +90,14 @@ def update_item(
         current_user=current_user,
         item_id=id,
     )
-    return service.update_item(session=session, item=item, item_in=item_in)
+
+    updated_item = service.update_item(
+        session=session,
+        item=item,
+        item_in=item_in,
+    )
+
+    return updated_item
 
 
 @router.delete("/{id}")
@@ -94,5 +111,9 @@ def delete_item(
         current_user=current_user,
         item_id=id,
     )
+
     service.delete_item(session=session, item=item)
-    return Message(message="Item deleted successfully")
+
+    response = Message(message="条目删除成功")
+
+    return response

@@ -16,9 +16,12 @@ class ItemUpdate(SQLModel):
 
 class ItemPublic(SQLModel):
     id: uuid.UUID
+
     title: str
     description: str | None = None
+
     owner_id: uuid.UUID
+
     created_at: datetime | None = None
 
 

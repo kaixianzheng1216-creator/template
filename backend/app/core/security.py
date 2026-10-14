@@ -22,15 +22,24 @@ ALGORITHM = "HS256"
 def create_access_token(subject: str | Any, expires_delta: timedelta) -> str:
     expire = datetime.now(UTC) + expires_delta
     to_encode = {"exp": expire, "sub": str(subject)}
+
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
+
     return encoded_jwt
 
 
 def verify_password(
     plain_password: str, hashed_password: str
 ) -> tuple[bool, str | None]:
-    return password_hash.verify_and_update(plain_password, hashed_password)
+    verification_result = password_hash.verify_and_update(
+        plain_password,
+        hashed_password,
+    )
+
+    return verification_result
 
 
 def get_password_hash(password: str) -> str:
-    return password_hash.hash(password)
+    hashed_password = password_hash.hash(password)
+
+    return hashed_password

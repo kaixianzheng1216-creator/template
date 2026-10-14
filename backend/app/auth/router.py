@@ -24,15 +24,20 @@ def login_access_token(
         username=form_data.username,
         password=form_data.password,
     )
+
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+        raise HTTPException(status_code=400, detail="用户名或密码错误")
+
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Inactive user")
+        raise HTTPException(status_code=400, detail="用户已停用")
 
     expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    return Token(
+
+    token = Token(
         access_token=security.create_access_token(user.id, expires_delta=expires)
     )
+
+    return token
 
 
 @router.post("/login/test-token", response_model=UserPublic)

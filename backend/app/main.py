@@ -8,7 +8,9 @@ from app.core.config import settings
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
-    return f"{route.tags[0]}-{route.name}"
+    operation_id = f"{route.tags[0]}-{route.name}"
+
+    return operation_id
 
 
 if settings.SENTRY_DSN and settings.FASTAPI_ENV != "development":
