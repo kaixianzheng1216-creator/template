@@ -1,4 +1,4 @@
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
@@ -18,16 +18,3 @@ class PaginationResponse(BaseModel, Generic[ResponseDataT]):  # noqa: UP046
 
     data: list[ResponseDataT] = Field(description="当前页数据")
     count: int = Field(description="记录总数")
-
-
-class ErrorResponse(SQLModel):
-    """统一错误响应。"""
-
-    code: str = Field(description="错误码")
-    message: str = Field(description="错误消息")
-
-
-class ValidationErrorResponse(ErrorResponse):
-    """请求参数验证错误响应。"""
-
-    details: list[dict[str, Any]] = Field(description="字段验证错误列表")

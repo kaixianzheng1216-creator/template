@@ -12,7 +12,7 @@ export function InfrastructureStatus() {
   React.useEffect(() => {
     const controller = new AbortController()
 
-    apiFetch<boolean>("/utils/health-check/", {
+    apiFetch<boolean>("/utils/health-check", {
       auth: false,
       signal: controller.signal,
     })

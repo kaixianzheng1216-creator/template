@@ -1,11 +1,12 @@
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
+from scalar_fastapi import add_scalar_reference
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router
 from app.core.config import settings
-from app.exception_handlers import GLOBAL_ERROR_RESPONSES, register_exception_handlers
+from app.exception_handlers import register_exception_handlers
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -24,10 +25,11 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
-    responses=GLOBAL_ERROR_RESPONSES,
 )
 
 register_exception_handlers(app)
+
+add_scalar_reference(app, route="/scalar")
 
 app.add_middleware(
     CORSMiddleware,

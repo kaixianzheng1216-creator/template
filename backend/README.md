@@ -23,7 +23,7 @@ $ uv run bash scripts/prestart.sh
 $ uv run fastapi dev
 ```
 
-API 地址为 `http://localhost:8000`，自动生成的交互式文档位于 `http://localhost:8000/docs`。
+API 地址为 `http://localhost:8000`，Swagger UI 位于 `http://localhost:8000/docs`，Scalar 文档位于 `http://localhost:8000/scalar`。
 
 ## 常规工作流程
 

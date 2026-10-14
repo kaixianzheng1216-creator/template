@@ -29,6 +29,8 @@ uv run fastapi dev
 
 由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
 
+由 Scalar 提供的现代交互式 API 文档：<http://localhost:8000/scalar>
+
 另开一个终端启动前端：
 
 ```bash
@@ -57,6 +59,8 @@ docker compose watch
 前端：<http://localhost:3000>
 
 由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
+
+由 Scalar 提供的现代交互式 API 文档：<http://localhost:8000/scalar>
 
 启动 Compose 后端前，请停止本地运行的 FastAPI 服务器，因为两者都会使用 `8000` 端口。
 

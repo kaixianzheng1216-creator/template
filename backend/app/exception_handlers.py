@@ -12,7 +12,6 @@ from app.exceptions import (
     InternalServerException,
     RequestValidationAppException,
 )
-from app.schemas import ErrorResponse, ValidationErrorResponse
 
 logger = logging.getLogger(__name__)
 
@@ -24,37 +23,6 @@ HTTP_ERROR_MESSAGES = {
     status.HTTP_405_METHOD_NOT_ALLOWED: "请求方法不被允许",
     status.HTTP_409_CONFLICT: "请求与当前资源状态冲突",
     status.HTTP_422_UNPROCESSABLE_CONTENT: "请求参数验证失败",
-}
-
-GLOBAL_ERROR_RESPONSES: dict[int | str, dict[str, Any]] = {
-    status.HTTP_400_BAD_REQUEST: {
-        "model": ErrorResponse,
-        "description": "请求错误",
-    },
-    status.HTTP_401_UNAUTHORIZED: {
-        "model": ErrorResponse,
-        "description": "未登录",
-    },
-    status.HTTP_403_FORBIDDEN: {
-        "model": ErrorResponse,
-        "description": "权限不足",
-    },
-    status.HTTP_404_NOT_FOUND: {
-        "model": ErrorResponse,
-        "description": "资源不存在",
-    },
-    status.HTTP_409_CONFLICT: {
-        "model": ErrorResponse,
-        "description": "资源冲突",
-    },
-    status.HTTP_422_UNPROCESSABLE_CONTENT: {
-        "model": ValidationErrorResponse,
-        "description": "请求参数验证失败",
-    },
-    status.HTTP_500_INTERNAL_SERVER_ERROR: {
-        "model": ErrorResponse,
-        "description": "服务器内部错误",
-    },
 }
 
 
