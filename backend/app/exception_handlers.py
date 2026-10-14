@@ -87,8 +87,8 @@ async def http_exception_handler(
     http_exception = cast(StarletteHTTPException, exception)
 
     error = HttpRequestException()
-    message = HTTP_ERROR_MESSAGES.get(http_exception.status_code, error.message)
     code = f"HTTP_{http_exception.status_code}"
+    message = HTTP_ERROR_MESSAGES.get(http_exception.status_code, error.message)
 
     response = _create_error_response(
         status_code=http_exception.status_code,

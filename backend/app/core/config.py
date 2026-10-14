@@ -54,15 +54,6 @@ class Settings(BaseSettings):
 
         return database_url
 
-    def _check_default_secret(self, var_name: str, value: str | None) -> None:
-        if value == "changethis":
-            error = DefaultSecretError(var_name)
-
-            if self.FASTAPI_ENV == "development":
-                warnings.warn(str(error), stacklevel=1)
-            else:
-                raise error
-
     @model_validator(mode="after")
     def _enforce_non_default_secrets(self) -> Self:
         self._check_default_secret("SECRET_KEY", self.SECRET_KEY)
@@ -75,6 +66,15 @@ class Settings(BaseSettings):
         )
 
         return self
+
+    def _check_default_secret(self, var_name: str, value: str | None) -> None:
+        if value == "changethis":
+            error = DefaultSecretError(var_name)
+
+            if self.FASTAPI_ENV == "development":
+                warnings.warn(str(error), stacklevel=1)
+            else:
+                raise error
 
 
 settings = Settings()  # type: ignore # ty: ignore[unused-ignore-comment]

@@ -21,65 +21,6 @@ from app.users.schemas import (
 )
 
 
-def list_users(*, session: Session, skip: int, limit: int) -> tuple[list[User], int]:
-    count_statement = select(func.count()).select_from(User)
-
-    statement = (
-        select(User).order_by(col(User.created_at).desc()).offset(skip).limit(limit)
-    )
-
-    count = session.exec(count_statement).one()
-
-    users = list(session.exec(statement).all())
-
-    return users, count
-
-
-def get_user_by_username(*, session: Session, username: str) -> User | None:
-    statement = select(User).where(User.username == username)
-
-    user = session.exec(statement).first()
-
-    return user
-
-
-def get_user_by_id(
-    *,
-    session: Session,
-    current_user: User,
-    user_id: uuid.UUID,
-) -> User:
-    if current_user.id == user_id:
-        return current_user
-
-    if not current_user.is_superuser:
-        raise InsufficientPermissionsError
-
-    user = session.get(User, user_id)
-
-    if user is None:
-        raise UserNotFoundError
-
-    return user
-
-
-def create_user(*, session: Session, user_create: UserCreate) -> User:
-    _ensure_username_available(session=session, username=user_create.username)
-
-    user = User.model_validate(
-        user_create,
-        update={"hashed_password": get_password_hash(user_create.password)},
-    )
-
-    session.add(user)
-
-    session.commit()
-
-    session.refresh(user)
-
-    return user
-
-
 def register_user(*, session: Session, user_in: UserRegister) -> User:
     user_create = UserCreate.model_validate(user_in)
     user = create_user(session=session, user_create=user_create)
@@ -135,6 +76,64 @@ def update_password(
     session.commit()
 
 
+def delete_current_user(*, session: Session, current_user: User) -> None:
+    if current_user.is_superuser:
+        raise SuperuserSelfDeletionError
+
+    _delete_user(session=session, user=current_user)
+
+
+def list_users(*, session: Session, skip: int, limit: int) -> tuple[list[User], int]:
+    statement = (
+        select(User).order_by(col(User.created_at).desc()).offset(skip).limit(limit)
+    )
+
+    count_statement = select(func.count()).select_from(User)
+
+    users = list(session.exec(statement).all())
+
+    count = session.exec(count_statement).one()
+
+    return users, count
+
+
+def create_user(*, session: Session, user_create: UserCreate) -> User:
+    _ensure_username_available(session=session, username=user_create.username)
+
+    user = User.model_validate(
+        user_create,
+        update={"hashed_password": get_password_hash(user_create.password)},
+    )
+
+    session.add(user)
+
+    session.commit()
+
+    session.refresh(user)
+
+    return user
+
+
+def get_user_by_id(
+    *,
+    session: Session,
+    current_user: User,
+    user_id: uuid.UUID,
+) -> User:
+    if current_user.id == user_id:
+        return current_user
+
+    if not current_user.is_superuser:
+        raise InsufficientPermissionsError
+
+    user = session.get(User, user_id)
+
+    if user is None:
+        raise UserNotFoundError
+
+    return user
+
+
 def update_user(
     *,
     session: Session,
@@ -171,13 +170,6 @@ def update_user(
     return user
 
 
-def delete_current_user(*, session: Session, current_user: User) -> None:
-    if current_user.is_superuser:
-        raise SuperuserSelfDeletionError
-
-    _delete_user(session=session, user=current_user)
-
-
 def delete_user(
     *,
     session: Session,
@@ -193,6 +185,14 @@ def delete_user(
         raise SuperuserSelfDeletionError
 
     _delete_user(session=session, user=user)
+
+
+def get_user_by_username(*, session: Session, username: str) -> User | None:
+    statement = select(User).where(User.username == username)
+
+    user = session.exec(statement).first()
+
+    return user
 
 
 def create_development_user(

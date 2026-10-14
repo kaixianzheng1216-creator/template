@@ -25,6 +25,93 @@ from app.users.schemas import (
 router = APIRouter(prefix="/users", tags=["users"])
 
 
+@router.post(
+    "/signup",
+    response_model=UserPublic,
+    summary="注册用户",
+)
+def register_user(
+    session: SessionDep,
+    user_in: Annotated[UserRegister, Body(description="用户注册信息")],
+) -> UserPublic:
+    user = service.register_user(session=session, user_in=user_in)
+
+    response = UserPublic.model_validate(user)
+
+    return response
+
+
+@router.get(
+    "/me",
+    response_model=UserPublic,
+    summary="获取当前用户",
+)
+def read_user_me(current_user: CurrentUser) -> UserPublic:
+    response = UserPublic.model_validate(current_user)
+
+    return response
+
+
+@router.patch(
+    "/me",
+    response_model=UserPublic,
+    summary="更新当前用户",
+)
+def update_user_me(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    user_in: Annotated[UserUpdateMe, Body(description="当前用户更新信息")],
+) -> UserPublic:
+    user = service.update_current_user(
+        session=session,
+        current_user=current_user,
+        user_in=user_in,
+    )
+
+    response = UserPublic.model_validate(user)
+
+    return response
+
+
+@router.patch(
+    "/me/password",
+    response_model=UserMessageResponse,
+    summary="更新当前用户密码",
+)
+def update_password_me(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    body: Annotated[UpdatePassword, Body(description="密码更新信息")],
+) -> UserMessageResponse:
+    service.update_password(
+        session=session,
+        current_user=current_user,
+        password_in=body,
+    )
+
+    response = UserMessageResponse(message=UserMessage.PASSWORD_UPDATED)
+
+    return response
+
+
+@router.delete(
+    "/me",
+    response_model=UserMessageResponse,
+    summary="删除当前用户",
+)
+def delete_user_me(
+    session: SessionDep,
+    current_user: CurrentUser,
+) -> UserMessageResponse:
+    service.delete_current_user(session=session, current_user=current_user)
+
+    response = UserMessageResponse(message=UserMessage.USER_DELETED)
+
+    return response
+
+
 @router.get(
     "/",
     dependencies=[Depends(get_current_active_superuser)],
@@ -67,102 +154,15 @@ def create_user(
     return response
 
 
-@router.patch(
-    "/me",
-    response_model=UserPublic,
-    summary="更新当前用户",
-)
-def update_user_me(
-    *,
-    session: SessionDep,
-    user_in: Annotated[UserUpdateMe, Body(description="当前用户更新信息")],
-    current_user: CurrentUser,
-) -> UserPublic:
-    user = service.update_current_user(
-        session=session,
-        current_user=current_user,
-        user_in=user_in,
-    )
-
-    response = UserPublic.model_validate(user)
-
-    return response
-
-
-@router.patch(
-    "/me/password",
-    response_model=UserMessageResponse,
-    summary="更新当前用户密码",
-)
-def update_password_me(
-    *,
-    session: SessionDep,
-    body: Annotated[UpdatePassword, Body(description="密码更新信息")],
-    current_user: CurrentUser,
-) -> UserMessageResponse:
-    service.update_password(
-        session=session,
-        current_user=current_user,
-        password_in=body,
-    )
-
-    response = UserMessageResponse(message=UserMessage.PASSWORD_UPDATED)
-
-    return response
-
-
-@router.get(
-    "/me",
-    response_model=UserPublic,
-    summary="获取当前用户",
-)
-def read_user_me(current_user: CurrentUser) -> UserPublic:
-    response = UserPublic.model_validate(current_user)
-
-    return response
-
-
-@router.delete(
-    "/me",
-    response_model=UserMessageResponse,
-    summary="删除当前用户",
-)
-def delete_user_me(
-    session: SessionDep,
-    current_user: CurrentUser,
-) -> UserMessageResponse:
-    service.delete_current_user(session=session, current_user=current_user)
-
-    response = UserMessageResponse(message=UserMessage.USER_DELETED)
-
-    return response
-
-
-@router.post(
-    "/signup",
-    response_model=UserPublic,
-    summary="注册用户",
-)
-def register_user(
-    session: SessionDep,
-    user_in: Annotated[UserRegister, Body(description="用户注册信息")],
-) -> UserPublic:
-    user = service.register_user(session=session, user_in=user_in)
-
-    response = UserPublic.model_validate(user)
-
-    return response
-
-
 @router.get(
     "/{user_id}",
     response_model=UserPublic,
     summary="获取指定用户",
 )
 def read_user_by_id(
-    user_id: Annotated[uuid.UUID, Path(description="用户 ID")],
     session: SessionDep,
     current_user: CurrentUser,
+    user_id: Annotated[uuid.UUID, Path(description="用户 ID")],
 ) -> UserPublic:
     user = service.get_user_by_id(
         session=session,

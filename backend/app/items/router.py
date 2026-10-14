@@ -43,26 +43,6 @@ def read_items(
     return response
 
 
-@router.get(
-    "/{id}",
-    response_model=ItemPublic,
-    summary="获取指定条目",
-)
-def read_item(
-    session: SessionDep,
-    current_user: CurrentUser,
-    id: Annotated[uuid.UUID, Path(description="条目 ID")],
-) -> ItemPublic:
-    item = service.get_item(
-        session=session,
-        current_user=current_user,
-        item_id=id,
-    )
-    response = ItemPublic.model_validate(item)
-
-    return response
-
-
 @router.post(
     "/",
     response_model=ItemPublic,
@@ -79,6 +59,28 @@ def create_item(
         current_user=current_user,
         item_in=item_in,
     )
+
+    response = ItemPublic.model_validate(item)
+
+    return response
+
+
+@router.get(
+    "/{id}",
+    response_model=ItemPublic,
+    summary="获取指定条目",
+)
+def read_item(
+    session: SessionDep,
+    current_user: CurrentUser,
+    id: Annotated[uuid.UUID, Path(description="条目 ID")],
+) -> ItemPublic:
+    item = service.get_item(
+        session=session,
+        current_user=current_user,
+        item_id=id,
+    )
+
     response = ItemPublic.model_validate(item)
 
     return response
@@ -102,6 +104,7 @@ def update_item(
         item_id=id,
         item_in=item_in,
     )
+
     response = ItemPublic.model_validate(item)
 
     return response

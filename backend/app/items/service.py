@@ -15,15 +15,12 @@ def list_items(
     skip: int,
     limit: int,
 ) -> tuple[list[Item], int]:
-    count_statement = select(func.count()).select_from(Item)
     statement = select(Item)
+    count_statement = select(func.count()).select_from(Item)
 
     if not current_user.is_superuser:
-        count_statement = count_statement.where(Item.owner_id == current_user.id)
-
         statement = statement.where(Item.owner_id == current_user.id)
-
-    count = session.exec(count_statement).one()
+        count_statement = count_statement.where(Item.owner_id == current_user.id)
 
     items = list(
         session.exec(
@@ -31,24 +28,9 @@ def list_items(
         ).all()
     )
 
+    count = session.exec(count_statement).one()
+
     return items, count
-
-
-def get_item(
-    *,
-    session: Session,
-    current_user: User,
-    item_id: uuid.UUID,
-) -> Item:
-    item = session.get(Item, item_id)
-
-    if item is None:
-        raise ItemNotFoundError
-
-    if not current_user.is_superuser and item.owner_id != current_user.id:
-        raise ItemAccessDeniedError
-
-    return item
 
 
 def create_item(
@@ -64,6 +46,23 @@ def create_item(
     session.commit()
 
     session.refresh(item)
+
+    return item
+
+
+def get_item(
+    *,
+    session: Session,
+    current_user: User,
+    item_id: uuid.UUID,
+) -> Item:
+    item = session.get(Item, item_id)
+
+    if item is None:
+        raise ItemNotFoundError
+
+    if not current_user.is_superuser and item.owner_id != current_user.id:
+        raise ItemAccessDeniedError
 
     return item
 
