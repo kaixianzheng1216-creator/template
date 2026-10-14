@@ -2,12 +2,12 @@
 
 ## 本地开发
 
-本地开发时，通过 Docker Compose 运行 PostgreSQL 和 Mailpit，并在本机运行 FastAPI 与 Vite 开发服务器。
+本地开发时，通过 Docker Compose 运行 PostgreSQL，并在本机运行 FastAPI 开发服务器。
 
 启动依赖服务：
 
 ```bash
-docker compose up -d db mailpit
+docker compose up -d db
 ```
 
 然后进入 `backend` 目录，安装依赖并准备数据库：
@@ -23,38 +23,15 @@ uv run bash scripts/prestart.sh
 uv run fastapi dev
 ```
 
-另开一个终端，在项目根目录安装前端依赖并启动 Vite 开发服务器：
-
-```bash
-bun install
-bun run dev
-```
-
 现在可以访问以下地址：
-
-前端开发服务器：<http://localhost:5173>
 
 后端 API：<http://localhost:8000>
 
 由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
 
-Mailpit：<http://localhost:8025>
+## 使用 Docker Compose 运行后端
 
-根据 `frontend/.env` 中的配置，前端开发服务器会使用位于 `http://localhost:8000` 的后端。
-
-### 通过 FastAPI 提供前端服务
-
-在 `frontend` 目录构建前端：
-
-```bash
-bun run build
-```
-
-构建结果会写入 `backend/app/frontend`，并由 FastAPI 在 <http://localhost:8000> 提供服务。修改前端后需要重新构建。
-
-## 使用 Docker Compose 运行全栈应用
-
-要在 Docker Compose 中运行后端和已构建的前端，请执行：
+要在 Docker Compose 中运行后端，请执行：
 
 ```bash
 docker compose run --rm backend bash scripts/prestart.sh
@@ -63,23 +40,13 @@ docker compose watch
 
 现在可以访问以下地址：
 
-由 FastAPI 提供前端和 API 的应用：<http://localhost:8000>
+后端 API：<http://localhost:8000>
 
 由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
-
-Adminer 数据库 Web 管理界面：<http://localhost:8080>
-
-Traefik UI，可用于查看代理如何处理路由：<http://localhost:8090>
-
-Mailpit：<http://localhost:8025>
 
 启动 Compose 后端前，请停止本地运行的 FastAPI 服务器，因为两者都会使用 `8000` 端口。
 
 **注意**：首次启动服务栈时，所有服务可能需要一分钟才能准备就绪。可以使用 `docker compose logs` 查看状态，或使用 `docker compose logs backend` 单独查看后端服务。
-
-## Mailpit
-
-[Mailpit](https://mailpit.axllent.org) 会捕获本地开发期间发送的邮件，而不会真正投递。运行在本机的后端通过 `localhost:1025` 与其连接，Compose 中的后端则连接到 `mailpit` 服务。捕获的邮件可在 <http://localhost:8025> 查看。
 
 ## Docker Compose 文件和环境变量
 
@@ -87,7 +54,7 @@ Mailpit：<http://localhost:8025>
 
 `compose.override.yml` 添加本地开发配置，例如将源码作为卷挂载。Docker Compose 也会自动加载该文件，并将其配置叠加到 `compose.yml` 之上。
 
-`compose.deploy.yml` 包含部署专用配置，包括 HTTPS 和证书自动管理。部署应用时，需要将它与 `compose.yml` 显式组合使用。
+`compose.deploy.yml` 包含部署专用配置，包括端口发布和自动重启。部署应用时，需要将它与 `compose.yml` 显式组合使用。
 
 后端从 `.env` 文件读取本地配置。Docker Compose 也使用该文件进行变量插值，并将各容器所需的配置传入容器。
 
@@ -99,7 +66,7 @@ docker compose watch
 
 ## `.env` 文件
 
-受版本控制的 `.env` 文件包含本地开发默认值、密码及其他配置。其中的主机名使用 `localhost`，供运行在本机上的进程访问。Docker Compose 会将数据库、SMTP 服务器等主机名覆盖为对应的 Compose 服务名。
+受版本控制的 `.env` 文件包含本地开发默认值、密码及其他配置。其中的主机名使用 `localhost`，供运行在本机上的进程访问。Docker Compose 会将数据库主机名覆盖为对应的 Compose 服务名。
 
 请勿在 `.env` 中保存部署密钥。请按照 [FastAPI Cloud 部署指南](./deployment.md)或 [Docker Compose 部署指南](./deployment-docker-compose.md)中的说明配置密钥。
 

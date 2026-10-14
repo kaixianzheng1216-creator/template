@@ -17,7 +17,6 @@ dev = [
     { name = "typer", specifier = ">=0.27.2,<1.0.0" },
     { name = "zizmor", specifier = ">=1.30.1" },
 ]
-github-actions = [{ name = "smokeshow", specifier = ">=0.5.0" }]
 
 [[package]]
 name = "alembic"
@@ -69,11 +68,7 @@ version = "0.1.0"
 source = { editable = "backend" }
 dependencies = [
     { name = "alembic" },
-    { name = "email-validator" },
-    { name = "emails" },
     { name = "fastapi", extra = ["standard"] },
-    { name = "httpx" },
-    { name = "jinja2" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pwdlib", extra = ["argon2", "bcrypt"] },
     { name = "pydantic" },
@@ -86,9 +81,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "coverage" },
     { name = "mypy" },
-    { name = "pytest" },
     { name = "ruff" },
     { name = "ty" },
 ]
@@ -96,11 +89,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "alembic", specifier = ">=1.19.1,<2.0.0" },
-    { name = "email-validator", specifier = ">=2.1.0.post1,<3.0.0.0" },
-    { name = "emails", specifier = ">=1.1.2,<2.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.141.1,<1.0.0" },
-    { name = "httpx", specifier = ">=0.25.1,<1.0.0" },
-    { name = "jinja2", specifier = ">=3.1.4,<4.0.0" },
     { name = "psycopg", extras = ["binary"], specifier = ">=3.3.6,<4.0.0" },
     { name = "pwdlib", extras = ["argon2", "bcrypt"], specifier = ">=0.3.1" },
     { name = "pydantic", specifier = ">=2.13.5" },
@@ -113,9 +102,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "coverage", specifier = ">=7.4.3,<8.0.0" },
     { name = "mypy", specifier = ">=1.8.0,<3.0.0" },
-    { name = "pytest", specifier = ">=7.4.3,<10.0.0" },
     { name = "ruff", specifier = ">=0.2.2,<1.0.0" },
     { name = "ty", specifier = ">=0.0.25" },
 ]

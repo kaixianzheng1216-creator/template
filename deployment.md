@@ -14,15 +14,9 @@
 
 在 FastAPI Cloud 应用中添加以下必需的[环境变量](https://fastapicloud.com/docs/builds-and-deployments/environment-variables/)：
 
-* `PROJECT_NAME`：项目名称，用于 API 文档和邮件。
-* `FIRST_SUPERUSER`：第一个超级用户的电子邮箱地址。
-* `FRONTEND_HOST`：应用的公开 URL，例如自动生成的 `https://your-app.fastapicloud.dev` 地址或自定义域名。
-
-如需启用邮件功能，请根据邮件服务提供商的信息添加以下可选环境变量：
-
-* `SMTP_HOST`
-* `SMTP_USER`
-* `EMAILS_FROM_EMAIL`
+* `PROJECT_NAME`：项目名称，用于 API 文档。
+* `FIRST_SUPERUSER`：第一个超级用户的用户名。
+* `FRONTEND_HOST`：允许访问 API 的前端来源地址。
 
 如需启用 Sentry，请配置 `SENTRY_DSN`。
 
@@ -34,8 +28,6 @@
 * `FIRST_SUPERUSER_PASSWORD`：第一个超级用户的密码。
 * `DATABASE_URL`：PostgreSQL 连接 URL；使用数据库集成时会自动配置。
 
-如需使用需要身份验证的邮件服务提供商，请将 `SMTP_PASSWORD` 添加为密钥。
-
 可以使用以下命令为 `SECRET_KEY` 和 `FIRST_SUPERUSER_PASSWORD` 生成安全的值：
 
 ```bash
@@ -44,7 +36,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 
 ## 配置持续部署
 
-内置的 `.github/workflows/deploy.yml` 工作流会在变更推送到 `master` 时构建前端、准备数据库并部署应用。也可以从 **Actions** 选项卡手动运行该工作流。
+内置的 `.github/workflows/deploy.yml` 工作流会在变更推送到 `master` 时准备数据库并部署后端。也可以从 **Actions** 选项卡手动运行该工作流。
 
 登录 FastAPI Cloud，然后将[部署令牌](https://fastapicloud.com/docs/advanced-features/deploy-tokens/)和应用 ID 配置为 GitHub 仓库密钥：
 
@@ -70,15 +62,14 @@ uv run fastapi cloud setup-ci --secrets-only --app-id <your-app-id>
 
 部署工作流执行以下步骤：
 
-1. 安装前端依赖，并将前端构建到 `backend/app/frontend`。
-2. 运行 `backend/scripts/prestart.sh`，应用数据库迁移并创建第一个超级用户。
-3. 使用 `uv run fastapi deploy` 部署项目。
+1. 运行 `backend/scripts/prestart.sh`，应用数据库迁移并创建第一个超级用户。
+2. 使用 `uv run fastapi deploy` 部署项目。
 
 ## 访问地址
 
 请将 `your-app.fastapicloud.dev` 替换为 FastAPI Cloud 应用的 URL。
 
-应用（前端和 API）：`https://your-app.fastapicloud.dev`
+后端 API：`https://your-app.fastapicloud.dev`
 
 交互式 API 文档：`https://your-app.fastapicloud.dev/docs`
 
@@ -92,5 +83,3 @@ uv run fastapi cloud setup-ci --secrets-only --app-id <your-app-id>
 
 * [PR Push](https://github.com/apps/pr-push) 允许提交前检查工作流将自动修复推送到拉取请求分支。
 * [PR Submit](https://github.com/apps/pr-submit) 允许 **Bump pre-commit hooks** 和 **Prepare Release** 工作流创建拉取请求。
-
-如需使用 [Smokeshow](https://github.com/samuelcolvin/smokeshow) 发布代码覆盖率，请添加仓库密钥 `SMOKESHOW_AUTH_KEY`。

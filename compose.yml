@@ -1,22 +1,5 @@
 services:
 
-  proxy:
-    image: traefik:v3.7
-    volumes:
-      # 挂载 Docker 套接字，使 Traefik 能够读取其他服务的标签
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    command:
-      # 在 Traefik 中启用 Docker 提供程序，以读取 Docker 服务的标签
-      - --providers.docker
-      # 不公开所有 Docker 服务，仅公开显式启用的服务
-      - --providers.docker.exposedbydefault=false
-      # 创建监听 80 端口的 "http" 入口点
-      - --entrypoints.http.address=:80
-      # 启用访问日志，记录 HTTP 请求
-      - --accesslog
-      # 启用 Traefik 日志，记录配置和错误信息
-      - --log
-
   db:
     image: postgres:18
     healthcheck:
@@ -31,21 +14,6 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:?Variable not set}
       - POSTGRES_DB=app
 
-  adminer:
-    image: adminer
-    depends_on:
-      - db
-    environment:
-      - ADMINER_DESIGN=pepa-linha-dark
-    labels:
-      # 为此服务启用 Traefik
-      - traefik.enable=true
-      # 路由 Adminer 子域名的 HTTP 流量
-      - traefik.http.routers.adminer-http.rule=Host(`adminer.${DOMAIN:-localhost}`)
-      - traefik.http.routers.adminer-http.entrypoints=http
-      # 指定 Docker 服务内部使用的端口
-      - traefik.http.services.adminer.loadbalancer.server.port=8080
-
   backend:
     image: template-backend:latest
     depends_on:
@@ -57,10 +25,6 @@ services:
       SECRET_KEY: ${SECRET_KEY:?Variable not set}
       FIRST_SUPERUSER: ${FIRST_SUPERUSER:?Variable not set}
       FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:?Variable not set}
-      SMTP_HOST: ${SMTP_HOST}
-      SMTP_USER: ${SMTP_USER:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL}
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:?Variable not set}@db:5432/app
       SENTRY_DSN: ${SENTRY_DSN:-}
 
@@ -73,16 +37,5 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    labels:
-      # 为此服务启用 Traefik
-      - traefik.enable=true
-
-      # 指定 Docker 服务内部使用的端口
-      - traefik.http.services.backend.loadbalancer.server.port=8000
-
-      # 路由此域名的 HTTP 流量
-      - traefik.http.routers.backend-http.rule=Host(`${DOMAIN:-localhost}`)
-      - traefik.http.routers.backend-http.entrypoints=http
-
 volumes:
   app-db-data:

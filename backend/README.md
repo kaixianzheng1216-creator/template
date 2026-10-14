@@ -9,10 +9,10 @@
 
 在本地运行后端，并连接到 Docker Compose 中的 PostgreSQL。
 
-在项目根目录启动 PostgreSQL 和 Mailpit：
+在项目根目录启动 PostgreSQL：
 
 ```console
-$ docker compose up -d db mailpit
+$ docker compose up -d db
 ```
 
 然后进入 `./backend/`，安装依赖、准备数据库并启动开发服务器：
@@ -35,11 +35,9 @@ API 地址为 `http://localhost:8000`，自动生成的交互式文档位于 `ht
 
 项目已经包含通过 VS Code 调试器运行后端的配置，因此可以使用断点、暂停程序并查看变量等功能。
 
-相关配置也支持通过 VS Code 的 Python 测试面板运行测试。
+## 使用 Docker Compose 运行后端
 
-## 使用 Docker Compose 运行全栈应用
-
-要在 Docker Compose 中运行后端和已构建的前端，请执行：
+要在 Docker Compose 中运行后端，请执行：
 
 ```console
 $ docker compose run --rm backend bash scripts/prestart.sh
@@ -57,38 +55,6 @@ $ docker compose watch
 ```console
 $ docker compose exec backend bash
 ```
-
-## 后端测试
-
-在 `backend` 目录中执行以下命令测试后端：
-
-```console
-$ uv run bash scripts/test.sh
-```
-
-测试由 Pytest 运行。可以修改现有测试，或在 `./backend/tests/` 中添加新测试。
-
-如果使用 GitHub Actions，测试会自动运行。
-
-### 测试正在运行的服务栈
-
-如果服务栈已经启动，只想运行测试，可以执行：
-
-```bash
-docker compose exec backend bash scripts/tests-start.sh
-```
-
-`/app/backend/scripts/tests-start.sh` 脚本会调用 `pytest`。如需向 `pytest` 传递额外参数，可将参数附加到该命令中，脚本会将其转发。
-
-例如，在首次出现错误时停止：
-
-```bash
-docker compose exec backend bash scripts/tests-start.sh -x
-```
-
-### 测试覆盖率
-
-测试运行时会生成 `htmlcov/index.html`。在浏览器中打开该文件即可查看测试覆盖率。
 
 ## 数据库迁移
 
@@ -123,23 +89,3 @@ $ alembic upgrade head
 ```
 
 如果不想使用默认模型，希望在没有任何历史迁移版本的情况下从头删除或修改它们，可以删除 `./backend/app/alembic/versions/` 下的迁移版本文件（`.py` Python 文件），然后按上述方式创建第一个迁移。
-
-## 邮件模板
-
-邮件模板使用 [React Email](https://react.email) 编写，位于 `./packages/react-email/`。`emails` 目录中的每个组件对应一封邮件，`ui` 目录则存放布局、标题、按钮、链接和提示框等共享组件。
-
-`./backend/app/email-templates/` 中渲染后的 HTML 由这些组件生成。应用实际发送的是这些 HTML 文件，因此不应手动编辑它们。
-
-编辑邮件时，可在项目根目录启动开发服务器进行预览：
-
-```console
-$ bun run email:dev
-```
-
-来自后端的值以 Jinja 占位符形式声明在组件属性中，例如 `username = "{{ username }}"`。每封邮件的上下文由 `./backend/app/utils.py` 中的 `generate_*_email()` 构建，因此新增占位符时也需要在对应函数中添加它。
-
-完成编辑后，重新生成应用使用的模板：
-
-```console
-$ bun run email:export
-```

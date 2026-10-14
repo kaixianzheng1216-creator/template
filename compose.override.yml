@@ -1,35 +1,8 @@
 services:
 
-  proxy:
-    image: traefik:v3.7
-    ports:
-      - "80:80"
-      - "8090:8080"
-    # 复制 compose.yml 中的命令，以便添加 --api.insecure=true
-    command:
-      # 在 Traefik 中启用 Docker 提供程序，以读取 Docker 服务的标签
-      - --providers.docker
-      # 不公开所有 Docker 服务，仅公开显式启用的服务
-      - --providers.docker.exposedbydefault=false
-      # 创建监听 80 端口的 "http" 入口点
-      - --entrypoints.http.address=:80
-      # 启用访问日志，记录 HTTP 请求
-      - --accesslog
-      # 启用 Traefik 日志，记录配置和错误信息
-      - --log
-      # 为本地开发启用调试日志
-      - --log.level=DEBUG
-      # 启用控制台和 API
-      - --api
-      # 在本地开发环境中以非安全模式启用控制台和 API
-      - --api.insecure=true
   db:
     ports:
       - "5432:5432"
-
-  adminer:
-    ports:
-      - "8080:8080"
 
   backend:
     ports:
@@ -52,49 +25,5 @@ services:
             - .venv
         - path: ./backend/pyproject.toml
           action: rebuild
-        - path: ./frontend
-          action: rebuild
-          ignore:
-            - ./frontend/node_modules
-            - ./frontend/dist
-            - ./frontend/blob-report
-            - ./frontend/test-results
-    # TODO：本地覆盖率统计完成后移除
-    volumes:
-      - ./backend/htmlcov:/app/backend/htmlcov
     environment:
       FASTAPI_ENV: "development"
-      SMTP_HOST: "mailpit"
-      SMTP_PORT: "1025"
-      SMTP_TLS: "false"
-
-  mailpit:
-    image: axllent/mailpit
-    ports:
-      - "8025:8025"
-      - "1025:1025"
-
-  playwright:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile.playwright
-      args:
-        - NODE_ENV=production
-    ipc: host
-    depends_on:
-      - backend
-      - mailpit
-    environment:
-      - FIRST_SUPERUSER=${FIRST_SUPERUSER:?Variable not set}
-      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD:?Variable not set}
-      - PLAYWRIGHT_BASE_URL=http://backend:8000
-      - VITE_API_URL=http://backend:8000
-      - MAILPIT_HOST=http://mailpit:8025
-      # 用于本地运行时生成报告
-      - PLAYWRIGHT_HTML_HOST=0.0.0.0
-      - CI=${CI:-}
-    volumes:
-      - ./frontend/blob-report:/app/frontend/blob-report
-      - ./frontend/test-results:/app/frontend/test-results
-    ports:
-      - 9323:9323

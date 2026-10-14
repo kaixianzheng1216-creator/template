@@ -1,11 +1,10 @@
 # FastAPI 项目——Docker Compose 部署指南
 
-可以使用 Docker Compose 将项目部署到自己的远程服务器。部署配置包含 Traefik，用于处理 HTTPS 并将传入流量路由到应用。
+可以使用 Docker Compose 将项目部署到自己的远程服务器。应用通过 `8000` 端口提供服务。
 
 ## 准备工作
 
 * 准备一台可用的远程服务器。
-* 为应用域名及需要公开的辅助服务子域名配置指向该服务器的 DNS 记录，例如 `fastapi-project.example.com` 和 `adminer.fastapi-project.example.com`。
 * 在远程服务器上安装并配置 [Docker](https://docs.docker.com/engine/install/)（使用 Docker Engine，而不是 Docker Desktop）。
 
 ## 复制代码
@@ -20,19 +19,16 @@ rsync -av --exclude=".git/" --filter=":- .gitignore" ./ root@your-server.example
 
 ### 环境变量
 
-设置应用域名、项目名称和第一个超级用户的电子邮箱：
+设置允许访问 API 的前端来源、项目名称和第一个超级用户的用户名：
 
 ```bash
-export DOMAIN=fastapi-project.example.com
+export FRONTEND_HOST=http://your-server.example.com:8000
 export PROJECT_NAME="Full Stack FastAPI Project"
-export FIRST_SUPERUSER=admin@example.com
+export FIRST_SUPERUSER=admin
 ```
 
 还可以根据需要配置以下环境变量：
 
-* `SMTP_HOST`：邮件服务提供商的 SMTP 服务器主机名。
-* `SMTP_USER`：SMTP 服务器用户名。
-* `EMAILS_FROM_EMAIL`：用于发送邮件的邮箱账户。
 * `SENTRY_DSN`：Sentry 的 DSN。
 
 ### 密钥
@@ -45,8 +41,6 @@ export SECRET_KEY="$(python -c 'import secrets; print(secrets.token_urlsafe(32))
 export FIRST_SUPERUSER_PASSWORD="$(python -c 'import secrets; print(secrets.token_urlsafe(32))')"
 ```
 
-如需使用需要身份验证的邮件服务提供商，还要设置 `SMTP_PASSWORD`。
-
 ## 部署
 
 ```bash
@@ -56,9 +50,7 @@ docker compose -f compose.yml -f compose.deploy.yml run --rm backend bash script
 docker compose -f compose.yml -f compose.deploy.yml up -d
 ```
 
-`compose.deploy.yml` 会在共享的 `compose.yml` 配置基础上添加 HTTPS 和证书自动管理。显式列出这两个文件，可以排除 `compose.override.yml` 中的本地开发配置。
-
-后端 Docker 镜像会构建前端，因此服务器不需要安装 Bun，也不需要预先构建前端文件。
+`compose.deploy.yml` 会在共享的 `compose.yml` 配置基础上添加生产端口和自动重启策略。显式列出这两个文件，可以排除 `compose.override.yml` 中的本地开发配置。
 
 ## 使用 GitHub Actions 部署
 
@@ -70,15 +62,9 @@ docker compose -f compose.yml -f compose.deploy.yml up -d
 
 进入仓库的 **Settings** > **Secrets and variables** > **Actions**，添加以下仓库变量：
 
-* `DOMAIN`
+* `FRONTEND_HOST`
 * `PROJECT_NAME`
 * `FIRST_SUPERUSER`
-
-如需启用邮件功能，请添加以下可选仓库变量：
-
-* `SMTP_HOST`
-* `SMTP_USER`
-* `EMAILS_FROM_EMAIL`
 
 如需启用 Sentry，请添加可选的仓库变量 `SENTRY_DSN`。
 
@@ -87,8 +73,6 @@ docker compose -f compose.yml -f compose.deploy.yml up -d
 * `POSTGRES_PASSWORD`
 * `SECRET_KEY`
 * `FIRST_SUPERUSER_PASSWORD`
-
-如需使用需要身份验证的邮件服务提供商，请添加可选仓库密钥 `SMTP_PASSWORD`。
 
 ### 安装自托管 Runner
 
@@ -120,10 +104,6 @@ Runner 上线后，打开仓库的 **Actions** 选项卡，选择 **Deploy with 
 
 ## 访问地址
 
-请将 `fastapi-project.example.com` 替换为你的域名。
+后端 API：`http://your-server.example.com:8000`
 
-应用（前端和 API）：`https://fastapi-project.example.com`
-
-交互式 API 文档：`https://fastapi-project.example.com/docs`
-
-Adminer：`https://adminer.fastapi-project.example.com`
+交互式 API 文档：`http://your-server.example.com:8000/docs`
