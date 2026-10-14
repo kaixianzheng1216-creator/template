@@ -37,6 +37,7 @@ def list_users(*, session: Session, skip: int, limit: int) -> tuple[list[User], 
 
 def get_user_by_username(*, session: Session, username: str) -> User | None:
     statement = select(User).where(User.username == username)
+
     user = session.exec(statement).first()
 
     return user
@@ -162,7 +163,9 @@ def update_user(
     user.sqlmodel_update(user_data, update=extra_data)
 
     session.add(user)
+
     session.commit()
+
     session.refresh(user)
 
     return user
@@ -206,6 +209,7 @@ def create_development_user(
     )
 
     session.add(user)
+
     session.commit()
 
     return user

@@ -24,6 +24,7 @@ def create_user(
         password=user_in.password,
         full_name=user_in.full_name,
     )
+
     response = UserPublic.model_validate(user)
 
     return response

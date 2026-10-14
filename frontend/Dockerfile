@@ -1,7 +1,10 @@
-FROM node:24-alpine AS base
+FROM docker.m.daocloud.io/library/node:24-alpine AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+
+# 使用国内镜像
+ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
 
 RUN corepack enable
 
@@ -34,7 +37,7 @@ COPY . .
 RUN pnpm build
 
 
-FROM node:24-alpine AS production
+FROM docker.m.daocloud.io/library/node:24-alpine AS production
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

@@ -61,6 +61,7 @@ def create_user(
     user_in: Annotated[UserCreate, Body(description="新用户信息")],
 ) -> UserPublic:
     user = service.create_user(session=session, user_create=user_in)
+
     response = UserPublic.model_validate(user)
 
     return response
@@ -82,6 +83,7 @@ def update_user_me(
         current_user=current_user,
         user_in=user_in,
     )
+
     response = UserPublic.model_validate(user)
 
     return response
@@ -146,6 +148,7 @@ def register_user(
     user_in: Annotated[UserRegister, Body(description="用户注册信息")],
 ) -> UserPublic:
     user = service.register_user(session=session, user_in=user_in)
+
     response = UserPublic.model_validate(user)
 
     return response
@@ -166,6 +169,7 @@ def read_user_by_id(
         current_user=current_user,
         user_id=user_id,
     )
+
     response = UserPublic.model_validate(user)
 
     return response
@@ -188,6 +192,7 @@ def update_user(
         user_id=user_id,
         user_in=user_in,
     )
+
     response = UserPublic.model_validate(user)
 
     return response

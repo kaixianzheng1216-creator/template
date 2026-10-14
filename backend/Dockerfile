@@ -14,6 +14,9 @@ ENV UV_COMPILE_BYTECODE=1
 # 参考：https://docs.astral.sh/uv/guides/integration/docker/#caching
 ENV UV_LINK_MODE=copy
 
+# 使用国内镜像
+ENV UV_DEFAULT_INDEX=https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple
+
 WORKDIR /app/
 
 # 将虚拟环境中的可执行文件放到 PATH 最前面
@@ -25,7 +28,7 @@ ENV PATH="/app/.venv/bin:$PATH"
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-workspace --package app
+    uv sync --frozen --no-dev --no-install-workspace --package app
 
 COPY ./backend/scripts /app/backend/scripts
 
@@ -38,7 +41,7 @@ COPY ./backend/app /app/backend/app
 RUN --mount=type=cache,target=/root/.cache/uv \
     --mount=type=bind,source=uv.lock,target=uv.lock \
     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --package app
+    uv sync --frozen --no-dev --package app
 
 WORKDIR /app/backend/
 
