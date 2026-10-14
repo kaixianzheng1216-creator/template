@@ -10,7 +10,7 @@ router = APIRouter(tags=["private"], prefix="/private")
 
 
 @router.post(
-    "/users/",
+    "/users",
     response_model=UserPublic,
     summary="创建开发测试用户",
 )

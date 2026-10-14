@@ -113,7 +113,7 @@ def delete_user_me(
 
 
 @router.get(
-    "/",
+    "",
     dependencies=[Depends(get_current_active_superuser)],
     response_model=UsersPublic,
     summary="分页获取用户列表",
@@ -137,7 +137,7 @@ def read_users(
 
 
 @router.post(
-    "/",
+    "",
     dependencies=[Depends(get_current_active_superuser)],
     response_model=UserPublic,
     summary="创建用户",

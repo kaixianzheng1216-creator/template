@@ -19,7 +19,7 @@ router = APIRouter(prefix="/items", tags=["items"])
 
 
 @router.get(
-    "/",
+    "",
     response_model=ItemsPublic,
     summary="分页获取条目列表",
 )
@@ -44,7 +44,7 @@ def read_items(
 
 
 @router.post(
-    "/",
+    "",
     response_model=ItemPublic,
     summary="创建条目",
 )
