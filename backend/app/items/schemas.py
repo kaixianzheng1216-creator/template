@@ -3,11 +3,10 @@ from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
-from app.items.models import ItemBase
 
-
-class ItemCreate(ItemBase):
-    pass
+class ItemCreate(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str | None = Field(default=None, max_length=255)
 
 
 class ItemUpdate(SQLModel):
@@ -15,8 +14,10 @@ class ItemUpdate(SQLModel):
     description: str | None = Field(default=None, max_length=255)
 
 
-class ItemPublic(ItemBase):
+class ItemPublic(SQLModel):
     id: uuid.UUID
+    title: str
+    description: str | None = None
     owner_id: uuid.UUID
     created_at: datetime | None = None
 
