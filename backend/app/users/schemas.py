@@ -3,56 +3,141 @@ from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
+from app.schemas import PaginationResponse
+
 
 class UserCreate(SQLModel):
-    username: str = Field(min_length=3, max_length=50)
-    password: str = Field(min_length=8, max_length=128)
+    """创建用户的请求数据。"""
 
-    full_name: str | None = Field(default=None, max_length=255)
+    username: str = Field(
+        min_length=3,
+        max_length=50,
+        description="用户名",
+    )
+    password: str = Field(
+        min_length=8,
+        max_length=128,
+        description="登录密码",
+    )
 
-    is_active: bool = True
-    is_superuser: bool = False
+    full_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="用户全名",
+    )
+
+    is_active: bool = Field(default=True, description="是否启用")
+    is_superuser: bool = Field(default=False, description="是否为超级用户")
 
 
 class UserRegister(SQLModel):
-    username: str = Field(min_length=3, max_length=50)
-    password: str = Field(min_length=8, max_length=128)
+    """用户注册的请求数据。"""
 
-    full_name: str | None = Field(default=None, max_length=255)
+    username: str = Field(
+        min_length=3,
+        max_length=50,
+        description="用户名",
+    )
+    password: str = Field(
+        min_length=8,
+        max_length=128,
+        description="登录密码",
+    )
+
+    full_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="用户全名",
+    )
 
 
 class UserUpdate(SQLModel):
-    username: str | None = Field(default=None, min_length=3, max_length=50)
-    password: str | None = Field(default=None, min_length=8, max_length=128)
+    """更新用户的请求数据。"""
 
-    full_name: str | None = Field(default=None, max_length=255)
+    username: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=50,
+        description="用户名",
+    )
+    password: str | None = Field(
+        default=None,
+        min_length=8,
+        max_length=128,
+        description="登录密码",
+    )
 
-    is_active: bool | None = None
-    is_superuser: bool | None = None
+    full_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="用户全名",
+    )
+
+    is_active: bool | None = Field(default=None, description="是否启用")
+    is_superuser: bool | None = Field(
+        default=None,
+        description="是否为超级用户",
+    )
 
 
 class UserUpdateMe(SQLModel):
-    username: str | None = Field(default=None, min_length=3, max_length=50)
-    full_name: str | None = Field(default=None, max_length=255)
+    """当前用户更新个人信息的请求数据。"""
+
+    username: str | None = Field(
+        default=None,
+        min_length=3,
+        max_length=50,
+        description="用户名",
+    )
+    full_name: str | None = Field(
+        default=None,
+        max_length=255,
+        description="用户全名",
+    )
 
 
 class UpdatePassword(SQLModel):
-    current_password: str = Field(min_length=8, max_length=128)
-    new_password: str = Field(min_length=8, max_length=128)
+    """更新当前用户密码的请求数据。"""
+
+    current_password: str = Field(
+        min_length=8,
+        max_length=128,
+        description="当前密码",
+    )
+    new_password: str = Field(
+        min_length=8,
+        max_length=128,
+        description="新密码",
+    )
 
 
 class UserPublic(SQLModel):
-    id: uuid.UUID
+    """用户的公开响应数据。"""
 
-    username: str
-    full_name: str | None = None
+    id: uuid.UUID = Field(description="用户 ID")
 
-    is_active: bool = True
-    is_superuser: bool = False
+    username: str = Field(description="用户名")
+    full_name: str | None = Field(default=None, description="用户全名")
 
-    created_at: datetime | None = None
+    is_active: bool = Field(default=True, description="是否启用")
+    is_superuser: bool = Field(default=False, description="是否为超级用户")
+
+    created_at: datetime | None = Field(default=None, description="创建时间")
 
 
-class UsersPublic(SQLModel):
-    data: list[UserPublic]
-    count: int
+class UsersPublic(PaginationResponse[UserPublic]):
+    """用户列表的响应数据。"""
+
+
+class UserMessageResponse(SQLModel):
+    """用户操作结果的响应数据。"""
+
+    message: str = Field(description="操作结果消息")
+
+
+class PrivateUserCreate(SQLModel):
+    """创建开发测试用户的请求数据。"""
+
+    username: str = Field(description="用户名")
+    password: str = Field(description="登录密码")
+    full_name: str = Field(description="用户全名")

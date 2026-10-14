@@ -3,28 +3,58 @@ from datetime import datetime
 
 from sqlmodel import Field, SQLModel
 
+from app.schemas import PaginationResponse
+
 
 class ItemCreate(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+    """创建条目的请求数据。"""
+
+    title: str = Field(
+        min_length=1,
+        max_length=255,
+        description="条目标题",
+    )
+    description: str | None = Field(
+        default=None,
+        max_length=255,
+        description="条目描述",
+    )
 
 
 class ItemUpdate(SQLModel):
-    title: str | None = Field(default=None, min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
+    """更新条目的请求数据。"""
+
+    title: str | None = Field(
+        default=None,
+        min_length=1,
+        max_length=255,
+        description="条目标题",
+    )
+    description: str | None = Field(
+        default=None,
+        max_length=255,
+        description="条目描述",
+    )
 
 
 class ItemPublic(SQLModel):
-    id: uuid.UUID
+    """条目的公开响应数据。"""
 
-    title: str
-    description: str | None = None
+    id: uuid.UUID = Field(description="条目 ID")
 
-    owner_id: uuid.UUID
+    title: str = Field(description="条目标题")
+    description: str | None = Field(default=None, description="条目描述")
 
-    created_at: datetime | None = None
+    owner_id: uuid.UUID = Field(description="所属用户 ID")
+
+    created_at: datetime | None = Field(default=None, description="创建时间")
 
 
-class ItemsPublic(SQLModel):
-    data: list[ItemPublic]
-    count: int
+class ItemsPublic(PaginationResponse[ItemPublic]):
+    """条目列表的响应数据。"""
+
+
+class ItemMessageResponse(SQLModel):
+    """条目操作结果的响应数据。"""
+
+    message: str = Field(description="操作结果消息")

@@ -1,10 +1,14 @@
-from sqlmodel import SQLModel
+from sqlmodel import Field, SQLModel
 
 
 class Token(SQLModel):
-    access_token: str
-    token_type: str = "bearer"
+    """登录成功后的访问令牌响应。"""
+
+    access_token: str = Field(description="访问令牌")
+    token_type: str = Field(default="bearer", description="令牌类型")
 
 
 class TokenPayload(SQLModel):
-    sub: str | None = None
+    """访问令牌中携带的数据。"""
+
+    sub: str | None = Field(default=None, description="令牌主体的用户 ID")
