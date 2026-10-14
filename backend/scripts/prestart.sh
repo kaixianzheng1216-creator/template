@@ -3,8 +3,8 @@
 set -e
 set -x
 
-# Run migrations
+# 执行数据库迁移
 alembic upgrade head
 
-# Create initial data in DB
+# 在数据库中创建初始数据
 python app/initial_data.py

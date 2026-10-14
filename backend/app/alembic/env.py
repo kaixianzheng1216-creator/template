@@ -4,17 +4,14 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# this is the Alembic Config object, which provides
-# access to the values within the .ini file in use.
+# Alembic 配置对象，用于读取当前 .ini 文件中的配置值。
 config = context.config
 
-# Interpret the config file for Python logging.
-# This line sets up loggers basically.
+# 读取配置文件并初始化 Python 日志记录器。
 assert config.config_file_name is not None
 fileConfig(config.config_file_name)
 
-# add your model's MetaData object here
-# for 'autogenerate' support
+# 在此添加模型的 MetaData 对象，以支持自动生成迁移。
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
@@ -24,10 +21,9 @@ from app.models import SQLModel  # noqa: E402
 
 target_metadata = SQLModel.metadata
 
-# other values from the config, defined by the needs of env.py,
-# can be acquired:
+# 可根据 env.py 的需要读取其他配置值：
 # my_important_option = config.get_main_option("my_important_option")
-# ... etc.
+# ……以此类推。
 
 
 def get_url():
@@ -35,16 +31,11 @@ def get_url():
 
 
 def run_migrations_offline():
-    """Run migrations in 'offline' mode.
+    """以离线模式执行迁移。
 
-    This configures the context with just a URL
-    and not an Engine, though an Engine is acceptable
-    here as well.  By skipping the Engine creation
-    we don't even need a DBAPI to be available.
-
-    Calls to context.execute() here emit the given string to the
-    script output.
-
+    此模式仅使用数据库 URL 配置上下文，不创建数据库引擎，
+    因此无需提供 DBAPI。这里调用 context.execute() 时，
+    给定内容会直接写入生成的脚本。
     """
     url = get_url()
     context.configure(
@@ -56,11 +47,9 @@ def run_migrations_offline():
 
 
 def run_migrations_online():
-    """Run migrations in 'online' mode.
+    """以在线模式执行迁移。
 
-    In this scenario we need to create an Engine
-    and associate a connection with the context.
-
+    此模式会创建数据库引擎，并将数据库连接绑定到迁移上下文。
     """
     configuration = config.get_section(config.config_ini_section)
     assert configuration is not None

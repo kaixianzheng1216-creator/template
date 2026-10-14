@@ -1,4 +1,4 @@
-"""Add max length for string(varchar) fields in User and Items models
+"""为用户和条目模型中的字符串（varchar）字段添加最大长度
 
 Revision ID: 9c0a54914c78
 Revises: e2412789c190
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
 
 
-# revision identifiers, used by Alembic.
+# Alembic 使用的迁移版本标识。
 revision = '9c0a54914c78'
 down_revision = 'e2412789c190'
 branch_labels = None
@@ -18,25 +18,25 @@ depends_on = None
 
 
 def upgrade():
-    # Adjust the length of the email field in the User table
+    # 调整用户表中 email 字段的长度
     op.alter_column('user', 'email',
                existing_type=sa.String(),
                type_=sa.String(length=255),
                existing_nullable=False)
 
-    # Adjust the length of the full_name field in the User table
+    # 调整用户表中 full_name 字段的长度
     op.alter_column('user', 'full_name',
                existing_type=sa.String(),
                type_=sa.String(length=255),
                existing_nullable=True)
 
-    # Adjust the length of the title field in the Item table
+    # 调整条目表中 title 字段的长度
     op.alter_column('item', 'title',
                existing_type=sa.String(),
                type_=sa.String(length=255),
                existing_nullable=False)
 
-    # Adjust the length of the description field in the Item table
+    # 调整条目表中 description 字段的长度
     op.alter_column('item', 'description',
                existing_type=sa.String(),
                type_=sa.String(length=255),
@@ -44,25 +44,25 @@ def upgrade():
 
 
 def downgrade():
-    # Revert the length of the email field in the User table
+    # 恢复用户表中 email 字段原有的长度
     op.alter_column('user', 'email',
                existing_type=sa.String(length=255),
                type_=sa.String(),
                existing_nullable=False)
 
-    # Revert the length of the full_name field in the User table
+    # 恢复用户表中 full_name 字段原有的长度
     op.alter_column('user', 'full_name',
                existing_type=sa.String(length=255),
                type_=sa.String(),
                existing_nullable=True)
 
-    # Revert the length of the title field in the Item table
+    # 恢复条目表中 title 字段原有的长度
     op.alter_column('item', 'title',
                existing_type=sa.String(length=255),
                type_=sa.String(),
                existing_nullable=False)
 
-    # Revert the length of the description field in the Item table
+    # 恢复条目表中 description 字段原有的长度
     op.alter_column('item', 'description',
                existing_type=sa.String(length=255),
                type_=sa.String(),

@@ -1,4 +1,4 @@
-"""Rename user email to username
+"""将用户邮箱字段重命名为用户名字段
 
 Revision ID: 7b1c2d3e4f5a
 Revises: fe56fa70289e
@@ -9,7 +9,7 @@ Create Date: 2026-10-14 00:00:00.000000
 from alembic import op
 
 
-# revision identifiers, used by Alembic.
+# Alembic 使用的迁移版本标识。
 revision = "7b1c2d3e4f5a"
 down_revision = "fe56fa70289e"
 branch_labels = None
