@@ -1,14 +1,12 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Path, Query
+from fastapi import APIRouter, Body, Path, Query, status
 
 from app.auth.dependencies import CurrentUser, SessionDep
 from app.items import service
-from app.items.constants import ItemMessage
 from app.items.schemas import (
     ItemCreate,
-    ItemMessageResponse,
     ItemPublic,
     ItemsPublic,
     ItemUpdate,
@@ -112,20 +110,16 @@ def update_item(
 
 @router.delete(
     "/{id}",
-    response_model=ItemMessageResponse,
+    status_code=status.HTTP_204_NO_CONTENT,
     summary="删除指定条目",
 )
 def delete_item(
     session: SessionDep,
     current_user: CurrentUser,
     id: Annotated[uuid.UUID, Path(description="条目 ID")],
-) -> ItemMessageResponse:
+) -> None:
     service.delete_item(
         session=session,
         current_user=current_user,
         item_id=id,
     )
-
-    response = ItemMessageResponse(message=ItemMessage.ITEM_DELETED)
-
-    return response

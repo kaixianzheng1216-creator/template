@@ -129,12 +129,6 @@ class UsersPublic(PaginationResponse[UserPublic]):
     """用户列表的响应数据。"""
 
 
-class UserMessageResponse(SQLModel):
-    """用户操作结果的响应数据。"""
-
-    message: str = Field(description="操作结果消息")
-
-
 class PrivateUserCreate(SQLModel):
     """创建开发测试用户的请求数据。"""
 

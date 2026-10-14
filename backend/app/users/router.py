@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Depends, Path, Query
+from fastapi import APIRouter, Body, Depends, Path, Query, status
 
 from app.auth.dependencies import (
     CurrentUser,
@@ -10,11 +10,9 @@ from app.auth.dependencies import (
 )
 from app.schemas import PaginationRequest
 from app.users import service
-from app.users.constants import UserMessage
 from app.users.schemas import (
     UpdatePassword,
     UserCreate,
-    UserMessageResponse,
     UserPublic,
     UserRegister,
     UsersPublic,
@@ -76,7 +74,7 @@ def update_user_me(
 
 @router.patch(
     "/me/password",
-    response_model=UserMessageResponse,
+    status_code=status.HTTP_204_NO_CONTENT,
     summary="更新当前用户密码",
 )
 def update_password_me(
@@ -84,32 +82,24 @@ def update_password_me(
     session: SessionDep,
     current_user: CurrentUser,
     body: Annotated[UpdatePassword, Body(description="密码更新信息")],
-) -> UserMessageResponse:
+) -> None:
     service.update_password(
         session=session,
         current_user=current_user,
         password_in=body,
     )
 
-    response = UserMessageResponse(message=UserMessage.PASSWORD_UPDATED)
-
-    return response
-
 
 @router.delete(
     "/me",
-    response_model=UserMessageResponse,
+    status_code=status.HTTP_204_NO_CONTENT,
     summary="删除当前用户",
 )
 def delete_user_me(
     session: SessionDep,
     current_user: CurrentUser,
-) -> UserMessageResponse:
+) -> None:
     service.delete_current_user(session=session, current_user=current_user)
-
-    response = UserMessageResponse(message=UserMessage.USER_DELETED)
-
-    return response
 
 
 @router.get(
@@ -201,19 +191,16 @@ def update_user(
 @router.delete(
     "/{user_id}",
     dependencies=[Depends(get_current_active_superuser)],
+    status_code=status.HTTP_204_NO_CONTENT,
     summary="删除指定用户",
 )
 def delete_user(
     session: SessionDep,
     current_user: CurrentUser,
     user_id: Annotated[uuid.UUID, Path(description="用户 ID")],
-) -> UserMessageResponse:
+) -> None:
     service.delete_user(
         session=session,
         current_user=current_user,
         user_id=user_id,
     )
-
-    response = UserMessageResponse(message=UserMessage.USER_DELETED)
-
-    return response

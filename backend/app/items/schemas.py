@@ -52,9 +52,3 @@ class ItemPublic(SQLModel):
 
 class ItemsPublic(PaginationResponse[ItemPublic]):
     """条目列表的响应数据。"""
-
-
-class ItemMessageResponse(SQLModel):
-    """条目操作结果的响应数据。"""
-
-    message: str = Field(description="操作结果消息")

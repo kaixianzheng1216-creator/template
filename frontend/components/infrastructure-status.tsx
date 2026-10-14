@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { apiFetch } from "@/lib/api/client"
+import { utilsHealthCheck } from "@/lib/api/generated/endpoints"
 
 type Status = "checking" | "online" | "offline"
 
@@ -12,8 +12,7 @@ export function InfrastructureStatus() {
   React.useEffect(() => {
     const controller = new AbortController()
 
-    apiFetch<boolean>("/utils/health-check", {
-      auth: false,
+    utilsHealthCheck({
       signal: controller.signal,
     })
       .then((healthy) => setStatus(healthy ? "online" : "offline"))
