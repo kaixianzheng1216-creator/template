@@ -5,23 +5,23 @@ services:
     ports:
       - "80:80"
       - "8090:8080"
-    # Duplicate the command from compose.yml to add --api.insecure=true
+    # 复制 compose.yml 中的命令，以便添加 --api.insecure=true
     command:
-      # Enable Docker in Traefik, so that it reads labels from Docker services
+      # 在 Traefik 中启用 Docker 提供程序，以读取 Docker 服务的标签
       - --providers.docker
-      # Do not expose all Docker services, only the ones explicitly exposed
+      # 不公开所有 Docker 服务，仅公开显式启用的服务
       - --providers.docker.exposedbydefault=false
-      # Create an entrypoint "http" listening on port 80
+      # 创建监听 80 端口的 "http" 入口点
       - --entrypoints.http.address=:80
-      # Enable the access log, with HTTP requests
+      # 启用访问日志，记录 HTTP 请求
       - --accesslog
-      # Enable the Traefik log, for configurations and errors
+      # 启用 Traefik 日志，记录配置和错误信息
       - --log
-      # Enable debug logging for local development
+      # 为本地开发启用调试日志
       - --log.level=DEBUG
-      # Enable the Dashboard and API
+      # 启用控制台和 API
       - --api
-      # Enable the Dashboard and API in insecure mode for local development
+      # 在本地开发环境中以非安全模式启用控制台和 API
       - --api.insecure=true
   db:
     ports:
@@ -37,7 +37,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    # command: sleep infinity  # Infinite loop to keep container alive doing nothing
+    # command: sleep infinity  # 通过无限循环让容器保持运行但不执行任何操作
     command:
       - fastapi
       - dev
@@ -59,7 +59,7 @@ services:
             - ./frontend/dist
             - ./frontend/blob-report
             - ./frontend/test-results
-    # TODO: remove once coverage is done locally
+    # TODO：本地覆盖率统计完成后移除
     volumes:
       - ./backend/htmlcov:/app/backend/htmlcov
     environment:
@@ -90,7 +90,7 @@ services:
       - PLAYWRIGHT_BASE_URL=http://backend:8000
       - VITE_API_URL=http://backend:8000
       - MAILPIT_HOST=http://mailpit:8025
-      # For the reports when run locally
+      # 用于本地运行时生成报告
       - PLAYWRIGHT_HTML_HOST=0.0.0.0
       - CI=${CI:-}
     volumes:
