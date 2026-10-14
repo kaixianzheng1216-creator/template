@@ -1,137 +1,137 @@
-# FastAPI Project - Development
+# FastAPI 项目——开发指南
 
-## Local Development
+## 本地开发
 
-For local development, run PostgreSQL and Mailpit with Docker Compose, and run the FastAPI and Vite development servers locally.
+本地开发时，通过 Docker Compose 运行 PostgreSQL 和 Mailpit，并在本机运行 FastAPI 与 Vite 开发服务器。
 
-Start the supporting services:
+启动依赖服务：
 
 ```bash
 docker compose up -d db mailpit
 ```
 
-Then, from the `backend` directory, install the dependencies and prepare the database:
+然后进入 `backend` 目录，安装依赖并准备数据库：
 
 ```bash
 uv sync
 uv run bash scripts/prestart.sh
 ```
 
-Start the FastAPI development server:
+启动 FastAPI 开发服务器：
 
 ```bash
 uv run fastapi dev
 ```
 
-In another terminal, from the project root, install the frontend dependencies and start the Vite development server:
+另开一个终端，在项目根目录安装前端依赖并启动 Vite 开发服务器：
 
 ```bash
 bun install
 bun run dev
 ```
 
-Now you can open these URLs:
+现在可以访问以下地址：
 
-Frontend development server: <http://localhost:5173>
+前端开发服务器：<http://localhost:5173>
 
-Backend API: <http://localhost:8000>
+后端 API：<http://localhost:8000>
 
-Automatic interactive API documentation with Swagger UI: <http://localhost:8000/docs>
+由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
 
-Mailpit: <http://localhost:8025>
+Mailpit：<http://localhost:8025>
 
-The frontend development server uses the backend at `http://localhost:8000`, as configured in `frontend/.env`.
+根据 `frontend/.env` 中的配置，前端开发服务器会使用位于 `http://localhost:8000` 的后端。
 
-### Frontend Served by FastAPI
+### 通过 FastAPI 提供前端服务
 
-Build the frontend from the `frontend` directory:
+在 `frontend` 目录构建前端：
 
 ```bash
 bun run build
 ```
 
-The build is written to `backend/app/frontend` and served by FastAPI at <http://localhost:8000>. Rebuild the frontend after making frontend changes.
+构建结果会写入 `backend/app/frontend`，并由 FastAPI 在 <http://localhost:8000> 提供服务。修改前端后需要重新构建。
 
-## Full Stack with Docker Compose
+## 使用 Docker Compose 运行全栈应用
 
-To run the backend and built frontend in Docker Compose:
+要在 Docker Compose 中运行后端和已构建的前端，请执行：
 
 ```bash
 docker compose run --rm backend bash scripts/prestart.sh
 docker compose watch
 ```
 
-Now you can open these URLs:
+现在可以访问以下地址：
 
-Application, with the frontend and API served by FastAPI: <http://localhost:8000>
+由 FastAPI 提供前端和 API 的应用：<http://localhost:8000>
 
-Automatic interactive API documentation with Swagger UI: <http://localhost:8000/docs>
+由 Swagger UI 提供的自动交互式 API 文档：<http://localhost:8000/docs>
 
-Adminer, database web administration: <http://localhost:8080>
+Adminer 数据库 Web 管理界面：<http://localhost:8080>
 
-Traefik UI, to see how the routes are being handled by the proxy: <http://localhost:8090>
+Traefik UI，可用于查看代理如何处理路由：<http://localhost:8090>
 
-Mailpit: <http://localhost:8025>
+Mailpit：<http://localhost:8025>
 
-Stop a locally running FastAPI server before starting the Compose backend because both use port `8000`.
+启动 Compose 后端前，请停止本地运行的 FastAPI 服务器，因为两者都会使用 `8000` 端口。
 
-**Note**: The first time you start the stack, it might take a minute for all the services to be ready. To monitor it, use `docker compose logs`, or `docker compose logs backend` for the backend service.
+**注意**：首次启动服务栈时，所有服务可能需要一分钟才能准备就绪。可以使用 `docker compose logs` 查看状态，或使用 `docker compose logs backend` 单独查看后端服务。
 
 ## Mailpit
 
-[Mailpit](https://mailpit.axllent.org) captures emails sent during local development instead of delivering them. The local backend connects to it at `localhost:1025`, and the Compose backend connects to the `mailpit` service. Captured emails are available at <http://localhost:8025>.
+[Mailpit](https://mailpit.axllent.org) 会捕获本地开发期间发送的邮件，而不会真正投递。运行在本机的后端通过 `localhost:1025` 与其连接，Compose 中的后端则连接到 `mailpit` 服务。捕获的邮件可在 <http://localhost:8025> 查看。
 
-## Docker Compose Files and Environment Variables
+## Docker Compose 文件和环境变量
 
-The main `compose.yml` file contains the configuration shared by the whole stack. Docker Compose loads it automatically.
+主配置文件 `compose.yml` 包含整个服务栈共享的配置，Docker Compose 会自动加载它。
 
-The `compose.override.yml` file adds local development settings, such as mounting the source code as a volume. Docker Compose also loads it automatically and applies it on top of `compose.yml`.
+`compose.override.yml` 添加本地开发配置，例如将源码作为卷挂载。Docker Compose 也会自动加载该文件，并将其配置叠加到 `compose.yml` 之上。
 
-The `compose.deploy.yml` file contains the deployment-specific settings, including HTTPS and automatic certificate handling. It is explicitly combined with `compose.yml` when deploying the application.
+`compose.deploy.yml` 包含部署专用配置，包括 HTTPS 和证书自动管理。部署应用时，需要将它与 `compose.yml` 显式组合使用。
 
-The backend reads local settings from the `.env` file. Docker Compose also uses it for variable interpolation and passes the settings each container needs.
+后端从 `.env` 文件读取本地配置。Docker Compose 也使用该文件进行变量插值，并将各容器所需的配置传入容器。
 
-After changing variables, make sure you restart the stack:
+修改变量后，请务必重启服务栈：
 
 ```bash
 docker compose watch
 ```
 
-## The `.env` File
+## `.env` 文件
 
-The tracked `.env` file contains local development defaults, passwords, and other configuration. Its hostnames use `localhost` for processes running on your machine. Docker Compose overrides hostnames such as the database and SMTP server with their Compose service names.
+受版本控制的 `.env` 文件包含本地开发默认值、密码及其他配置。其中的主机名使用 `localhost`，供运行在本机上的进程访问。Docker Compose 会将数据库、SMTP 服务器等主机名覆盖为对应的 Compose 服务名。
 
-Do not store deployment secrets in `.env`. Configure them as described in the [FastAPI Cloud deployment guide](./deployment.md) or the [Docker Compose deployment guide](./deployment-docker-compose.md).
+请勿在 `.env` 中保存部署密钥。请按照 [FastAPI Cloud 部署指南](./deployment.md)或 [Docker Compose 部署指南](./deployment-docker-compose.md)中的说明配置密钥。
 
-## Pre-commit Hooks and Code Linting
+## 提交前钩子与代码检查
 
-The project uses [prek](https://prek.j178.dev/), a modern alternative to [pre-commit](https://pre-commit.com/), for code linting and formatting.
+本项目使用 [prek](https://prek.j178.dev/) 进行代码检查和格式化，它是 [pre-commit](https://pre-commit.com/) 的现代替代方案。
 
-You can find a file `.pre-commit-config.yaml` with configurations at the root of the project.
+项目根目录中的 `.pre-commit-config.yaml` 文件包含相关配置。
 
-### Install `prek` to Run Automatically
+### 安装 `prek` 以自动运行
 
-`prek` is already part of the dependencies of the project.
+`prek` 已包含在项目依赖中。
 
-From the project root, install the Git hook so that `prek` runs automatically before each commit:
+在项目根目录安装 Git 钩子，使 `prek` 在每次提交前自动运行：
 
 ```bash
 uv run prek install -f
 ```
 
-The `-f` flag forces the installation, in case there was already a `pre-commit` hook previously installed.
+如果之前已安装过 `pre-commit` 钩子，`-f` 参数会强制执行安装。
 
-Now whenever you try to commit, for example with:
+此后每次尝试提交，例如执行：
 
 ```bash
 git commit
 ```
 
-`prek` will check and format the code you are about to commit. If it modifies any files, add those files to Git again before committing.
+`prek` 都会检查并格式化即将提交的代码。如果它修改了任何文件，请先将这些文件重新添加到 Git，再进行提交。
 
-### Run `prek` Manually
+### 手动运行 `prek`
 
-You can also run `prek` manually on all files from the project root:
+也可以在项目根目录手动对所有文件运行 `prek`：
 
 ```bash
 uv run prek run --all-files

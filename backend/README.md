@@ -1,21 +1,21 @@
-# FastAPI Project - Backend
+# FastAPI 项目——后端
 
-## Requirements
+## 环境要求
 
-* [Docker](https://www.docker.com/).
-* [uv](https://docs.astral.sh/uv/) for Python package and environment management.
+* [Docker](https://www.docker.com/)。
+* 用于 Python 包和环境管理的 [uv](https://docs.astral.sh/uv/)。
 
-## Local Development
+## 本地开发
 
-Run the backend locally and connect it to PostgreSQL in Docker Compose.
+在本地运行后端，并连接到 Docker Compose 中的 PostgreSQL。
 
-From the project root, start PostgreSQL and Mailpit:
+在项目根目录启动 PostgreSQL 和 Mailpit：
 
 ```console
 $ docker compose up -d db mailpit
 ```
 
-Then, from `./backend/`, install the dependencies, prepare the database, and start the development server:
+然后进入 `./backend/`，安装依赖、准备数据库并启动开发服务器：
 
 ```console
 $ uv sync
@@ -23,122 +23,122 @@ $ uv run bash scripts/prestart.sh
 $ uv run fastapi dev
 ```
 
-The API is available at `http://localhost:8000`, with automatic interactive docs at `http://localhost:8000/docs`.
+API 地址为 `http://localhost:8000`，自动生成的交互式文档位于 `http://localhost:8000/docs`。
 
-## General Workflow
+## 常规工作流程
 
-Run backend commands from `./backend/` with `uv run`. Make sure your editor uses the Python interpreter at `.venv/bin/python` in the project root.
+在 `./backend/` 中通过 `uv run` 执行后端命令。请确保编辑器使用项目根目录下的 Python 解释器 `.venv/bin/python`。
 
-Modify or add SQLModel models for data and SQL tables in `./backend/app/models.py`, API endpoints in `./backend/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./backend/app/crud.py`.
+在 `./backend/app/models.py` 中修改或添加数据及 SQL 表对应的 SQLModel 模型，在 `./backend/app/api/` 中编写 API 端点，在 `./backend/app/crud.py` 中编写 CRUD（创建、读取、更新、删除）工具函数。
 
 ## VS Code
 
-There are already configurations in place to run the backend through the VS Code debugger, so that you can use breakpoints, pause and explore variables, etc.
+项目已经包含通过 VS Code 调试器运行后端的配置，因此可以使用断点、暂停程序并查看变量等功能。
 
-The setup is also already configured so you can run the tests through the VS Code Python tests tab.
+相关配置也支持通过 VS Code 的 Python 测试面板运行测试。
 
-## Full Stack with Docker Compose
+## 使用 Docker Compose 运行全栈应用
 
-To run the backend and built frontend in Docker Compose:
+要在 Docker Compose 中运行后端和已构建的前端，请执行：
 
 ```console
 $ docker compose run --rm backend bash scripts/prestart.sh
 $ docker compose watch
 ```
 
-The application is available at `http://localhost:8000`.
+应用地址为 `http://localhost:8000`。
 
-### Docker Compose Override
+### Docker Compose 覆盖配置
 
-The `compose.override.yml` file contains local settings for published ports, source synchronization, automatic image rebuilds, and backend reloads. Docker Compose applies it automatically when you run `docker compose` without an explicit file list.
+`compose.override.yml` 包含本地开发所需的端口发布、源码同步、镜像自动重建和后端重新加载设置。不显式指定配置文件而直接运行 `docker compose` 时，Docker Compose 会自动应用该文件。
 
-To open a shell in the backend container:
+要在后端容器中打开 Shell，请执行：
 
 ```console
 $ docker compose exec backend bash
 ```
 
-## Backend Tests
+## 后端测试
 
-To test the backend from the `backend` directory, run:
+在 `backend` 目录中执行以下命令测试后端：
 
 ```console
 $ uv run bash scripts/test.sh
 ```
 
-The tests run with Pytest. Modify existing tests or add new ones in `./backend/tests/`.
+测试由 Pytest 运行。可以修改现有测试，或在 `./backend/tests/` 中添加新测试。
 
-If you use GitHub Actions, the tests will run automatically.
+如果使用 GitHub Actions，测试会自动运行。
 
-### Test a Running Stack
+### 测试正在运行的服务栈
 
-If your stack is already up and you just want to run the tests, you can use:
+如果服务栈已经启动，只想运行测试，可以执行：
 
 ```bash
 docker compose exec backend bash scripts/tests-start.sh
 ```
 
-The `/app/backend/scripts/tests-start.sh` script calls `pytest`. If you need to pass extra arguments to `pytest`, you can pass them to that command and they will be forwarded.
+`/app/backend/scripts/tests-start.sh` 脚本会调用 `pytest`。如需向 `pytest` 传递额外参数，可将参数附加到该命令中，脚本会将其转发。
 
-For example, to stop on first error:
+例如，在首次出现错误时停止：
 
 ```bash
 docker compose exec backend bash scripts/tests-start.sh -x
 ```
 
-### Test Coverage
+### 测试覆盖率
 
-When the tests run, they generate `htmlcov/index.html`. Open it in your browser to inspect the test coverage.
+测试运行时会生成 `htmlcov/index.html`。在浏览器中打开该文件即可查看测试覆盖率。
 
-## Migrations
+## 数据库迁移
 
-Make sure you create a revision of your models and upgrade the database with that revision every time you change them. From the `backend` directory, use `uv` to run Alembic against the PostgreSQL container:
+每次修改模型后，请务必为模型创建一个迁移版本，并使用该版本升级数据库。在 `backend` 目录中，通过 `uv` 针对 PostgreSQL 容器运行 Alembic：
 
-* Alembic is already configured to import your SQLModel models from `./backend/app/models.py`.
+* Alembic 已配置为从 `./backend/app/models.py` 导入 SQLModel 模型。
 
-* After changing a model (for example, adding a column), create a revision:
+* 修改模型后（例如添加字段），创建一个迁移版本：
 
 ```console
 $ uv run alembic revision --autogenerate -m "Add column last_name to User model"
 ```
 
-* Commit to the git repository the files generated in the alembic directory.
+* 将 Alembic 目录中生成的文件提交到 Git 仓库。
 
-* After creating the revision, run the migration in the database (this is what will actually change the database):
+* 创建迁移版本后，在数据库中运行迁移（该操作会实际修改数据库）：
 
 ```console
 $ uv run alembic upgrade head
 ```
 
-If you don't want to use migrations at all, uncomment the lines in the file at `./backend/app/core/db.py` that end in:
+如果完全不想使用数据库迁移，请在 `./backend/app/core/db.py` 文件中取消以下结尾代码的注释：
 
 ```python
 SQLModel.metadata.create_all(engine)
 ```
 
-and comment the line in the file `scripts/prestart.sh` that contains:
+并注释掉 `scripts/prestart.sh` 文件中包含以下内容的行：
 
 ```console
 $ alembic upgrade head
 ```
 
-If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./backend/app/alembic/versions/`. And then create a first migration as described above.
+如果不想使用默认模型，希望在没有任何历史迁移版本的情况下从头删除或修改它们，可以删除 `./backend/app/alembic/versions/` 下的迁移版本文件（`.py` Python 文件），然后按上述方式创建第一个迁移。
 
-## Email Templates
+## 邮件模板
 
-The email templates are written with [React Email](https://react.email) in `./packages/react-email/`. The `emails` directory holds one component per email and the `ui` directory holds the shared components (layout, heading, button, link, callout).
+邮件模板使用 [React Email](https://react.email) 编写，位于 `./packages/react-email/`。`emails` 目录中的每个组件对应一封邮件，`ui` 目录则存放布局、标题、按钮、链接和提示框等共享组件。
 
-The rendered HTML in `./backend/app/email-templates/` is generated from those components. It is what the application sends and should not be edited by hand.
+`./backend/app/email-templates/` 中渲染后的 HTML 由这些组件生成。应用实际发送的是这些 HTML 文件，因此不应手动编辑它们。
 
-To preview the emails while editing them, start the dev server from the root of the project:
+编辑邮件时，可在项目根目录启动开发服务器进行预览：
 
 ```console
 $ bun run email:dev
 ```
 
-Values coming from the backend are declared as Jinja placeholders in the component props, for example `username = "{{ username }}"`. The context for each email is built in `generate_*_email()` in `./backend/app/utils.py`, so a new placeholder needs to be added there too.
+来自后端的值以 Jinja 占位符形式声明在组件属性中，例如 `username = "{{ username }}"`。每封邮件的上下文由 `./backend/app/utils.py` 中的 `generate_*_email()` 构建，因此新增占位符时也需要在对应函数中添加它。
 
-Once you are done, regenerate the templates used by the application:
+完成编辑后，重新生成应用使用的模板：
 
 ```console
 $ bun run email:export
