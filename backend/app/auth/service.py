@@ -54,11 +54,8 @@ def _authenticate(*, session: Session, username: str, password: str) -> User | N
 
     if updated_password_hash:
         user.hashed_password = updated_password_hash
-
         session.add(user)
-
         session.commit()
-
         session.refresh(user)
 
     return user

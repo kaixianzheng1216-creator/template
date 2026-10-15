@@ -9,7 +9,6 @@ Create Date: 2026-10-14 00:00:00.000000
 import sqlalchemy as sa
 from alembic import op
 
-# Alembic 使用的迁移版本标识。
 revision = "7b1c2d3e4f5a"
 down_revision = None
 branch_labels = None

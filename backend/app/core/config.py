@@ -14,7 +14,6 @@ from app.core.exceptions import DefaultSecretError
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        # 使用项目根目录的 .env 文件（位于 ./backend/ 的上一级）
         env_file="../.env",
         env_ignore_empty=True,
         extra="ignore",
@@ -30,7 +29,6 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
 
-    # 60 分钟 × 24 小时 × 8 天 = 8 天
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
     FIRST_SUPERUSER: str
