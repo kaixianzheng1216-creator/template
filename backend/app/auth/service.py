@@ -10,7 +10,6 @@ from app.core.security import verify_password
 from app.users import service as users_service
 from app.users.models import User
 
-# 用户不存在时仍执行密码校验，降低基于响应时间推测用户名的风险。
 DUMMY_HASH = "$argon2id$v=19$m=65536,t=3,p=4$MjQyZWE1MzBjYjJlZTI0Yw$YTU4NGM5ZTZmYjE2NzZlZjY0ZWY3ZGRkY2U2OWFjNjk"
 
 

@@ -44,7 +44,9 @@ def update_current_user(
     current_user.sqlmodel_update(user_in.model_dump(exclude_unset=True))
 
     session.add(current_user)
+
     session.commit()
+
     session.refresh(current_user)
 
     return current_user
@@ -70,6 +72,7 @@ def update_password(
     current_user.hashed_password = get_password_hash(password_in.new_password)
 
     session.add(current_user)
+
     session.commit()
 
 
@@ -88,6 +91,7 @@ def list_users(*, session: Session, skip: int, limit: int) -> tuple[list[User], 
     count_statement = select(func.count()).select_from(User)
 
     users = list(session.exec(statement).all())
+
     count = session.exec(count_statement).one()
 
     return users, count
@@ -102,7 +106,9 @@ def create_user(*, session: Session, user_create: UserCreate) -> User:
     )
 
     session.add(user)
+
     session.commit()
+
     session.refresh(user)
 
     return user
@@ -156,7 +162,9 @@ def update_user(
     user.sqlmodel_update(user_data, update=extra_data)
 
     session.add(user)
+
     session.commit()
+
     session.refresh(user)
 
     return user
@@ -201,6 +209,7 @@ def create_development_user(
     )
 
     session.add(user)
+
     session.commit()
 
     return user
@@ -225,4 +234,5 @@ def _ensure_username_available(
 
 def _delete_user(*, session: Session, user: User) -> None:
     session.delete(user)
+
     session.commit()
