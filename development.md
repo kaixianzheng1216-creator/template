@@ -20,7 +20,7 @@ uv run bash scripts/prestart.sh
 启动 FastAPI 开发服务器：
 
 ```bash
-uv run fastapi dev
+uv run uvicorn app.main:app --reload
 ```
 
 现在可以访问以下地址：
@@ -86,7 +86,7 @@ docker compose watch
 
 受版本控制的 `.env` 文件包含本地开发默认值、密码及其他配置。其中的主机名使用 `localhost`，供运行在本机上的进程访问。Docker Compose 会将数据库主机名覆盖为对应的 Compose 服务名。
 
-请勿在 `.env` 中保存部署密钥。请按照 [FastAPI Cloud 部署指南](./deployment.md)或 [Docker Compose 部署指南](./deployment-docker-compose.md)中的说明配置密钥。
+请勿在 `.env` 中保存生产环境密钥。部署时，请按照 [Docker Compose 部署指南](./deployment-docker-compose.md)单独配置密钥。
 
 ## 提交前钩子与代码检查
 

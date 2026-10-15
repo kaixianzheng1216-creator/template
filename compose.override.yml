@@ -12,10 +12,13 @@ services:
       dockerfile: backend/Dockerfile
     # command: sleep infinity  # 通过无限循环让容器保持运行但不执行任何操作
     command:
-      - fastapi
-      - dev
+      - uvicorn
+      - app.main:app
       - --host
       - "0.0.0.0"
+      - --port
+      - "8000"
+      - --reload
     develop:
       watch:
         - path: ./backend

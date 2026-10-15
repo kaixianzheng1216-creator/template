@@ -20,7 +20,7 @@ $ docker compose up -d db
 ```console
 $ uv sync
 $ uv run bash scripts/prestart.sh
-$ uv run fastapi dev
+$ uv run uvicorn app.main:app --reload
 ```
 
 API 地址为 `http://localhost:8000`，Swagger UI 位于 `http://localhost:8000/docs`，Scalar 文档位于 `http://localhost:8000/scalar`。
