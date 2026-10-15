@@ -1,4 +1,3 @@
-import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from scalar_fastapi import add_scalar_reference
@@ -17,9 +16,6 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 
     return operation_id
 
-
-if settings.SENTRY_DSN and settings.FASTAPI_ENV != "development":
-    sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
 
 app = FastAPI(
     title=settings.PROJECT_NAME,

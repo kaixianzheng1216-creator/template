@@ -27,10 +27,6 @@ export PROJECT_NAME="Full Stack FastAPI Project"
 export FIRST_SUPERUSER=admin
 ```
 
-还可以根据需要配置以下环境变量：
-
-* `SENTRY_DSN`：Sentry 的 DSN。
-
 ### 密钥
 
 为数据库密码、令牌签名密钥和第一个超级用户密码生成并设置安全的值：
