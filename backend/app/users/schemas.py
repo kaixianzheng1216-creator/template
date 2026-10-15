@@ -119,11 +119,3 @@ class UserPublic(SQLModel):
 
 class UsersPublic(PaginationResponse[UserPublic]):
     """用户列表的响应数据。"""
-
-
-class PrivateUserCreate(SQLModel):
-    """创建开发测试用户的请求数据。"""
-
-    username: str = Field(description="用户名")
-    password: str = Field(description="登录密码")
-    full_name: str = Field(description="用户全名")

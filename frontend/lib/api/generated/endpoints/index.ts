@@ -1,5 +1,4 @@
 export * from "./items/items"
 export * from "./login/login"
-export * from "./private/private"
 export * from "./users/users"
 export * from "./utils/utils"

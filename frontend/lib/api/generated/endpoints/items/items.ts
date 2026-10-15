@@ -86,32 +86,32 @@ export const itemsCreateItem = async (
   })
 }
 
-export const getItemsReadItemUrl = (id: string) => {
-  return `/api/v1/items/${id}`
+export const getItemsReadItemUrl = (itemId: string) => {
+  return `/api/v1/items/${itemId}`
 }
 
 /**
  * @summary 获取指定条目
  */
 export const itemsReadItem = async (
-  id: string,
+  itemId: string,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<ItemPublic> => {
-  return apiFetch<ItemPublic>(getItemsReadItemUrl(id), {
+  return apiFetch<ItemPublic>(getItemsReadItemUrl(itemId), {
     ...options,
     method: "GET",
   })
 }
 
-export const getItemsUpdateItemUrl = (id: string) => {
-  return `/api/v1/items/${id}`
+export const getItemsUpdateItemUrl = (itemId: string) => {
+  return `/api/v1/items/${itemId}`
 }
 
 /**
  * @summary 更新指定条目
  */
 export const itemsUpdateItem = async (
-  id: string,
+  itemId: string,
   itemUpdate: ItemUpdate,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<ItemPublic> => {
@@ -136,9 +136,9 @@ export const itemsUpdateItem = async (
     }
     return headers
   }
-  return apiFetch<ItemPublic>(getItemsUpdateItemUrl(id), {
+  return apiFetch<ItemPublic>(getItemsUpdateItemUrl(itemId), {
     ...options,
-    method: "PUT",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       ...getHeaders(options?.headers),
@@ -147,18 +147,18 @@ export const itemsUpdateItem = async (
   })
 }
 
-export const getItemsDeleteItemUrl = (id: string) => {
-  return `/api/v1/items/${id}`
+export const getItemsDeleteItemUrl = (itemId: string) => {
+  return `/api/v1/items/${itemId}`
 }
 
 /**
  * @summary 删除指定条目
  */
 export const itemsDeleteItem = async (
-  id: string,
+  itemId: string,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<void> => {
-  return apiFetch<void>(getItemsDeleteItemUrl(id), {
+  return apiFetch<void>(getItemsDeleteItemUrl(itemId), {
     ...options,
     method: "DELETE",
   })

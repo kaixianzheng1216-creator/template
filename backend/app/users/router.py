@@ -25,7 +25,6 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.post(
     "/signup",
-    response_model=UserPublic,
     summary="注册用户",
 )
 def register_user(
@@ -41,7 +40,6 @@ def register_user(
 
 @router.get(
     "/me",
-    response_model=UserPublic,
     summary="获取当前用户",
 )
 def read_user_me(current_user: CurrentUser) -> UserPublic:
@@ -52,7 +50,6 @@ def read_user_me(current_user: CurrentUser) -> UserPublic:
 
 @router.patch(
     "/me",
-    response_model=UserPublic,
     summary="更新当前用户",
 )
 def update_user_me(
@@ -105,7 +102,6 @@ def delete_user_me(
 @router.get(
     "",
     dependencies=[Depends(get_current_active_superuser)],
-    response_model=UsersPublic,
     summary="分页获取用户列表",
 )
 def read_users(
@@ -129,7 +125,6 @@ def read_users(
 @router.post(
     "",
     dependencies=[Depends(get_current_active_superuser)],
-    response_model=UserPublic,
     summary="创建用户",
 )
 def create_user(
@@ -146,7 +141,6 @@ def create_user(
 
 @router.get(
     "/{user_id}",
-    response_model=UserPublic,
     summary="获取指定用户",
 )
 def read_user_by_id(
@@ -168,7 +162,6 @@ def read_user_by_id(
 @router.patch(
     "/{user_id}",
     dependencies=[Depends(get_current_active_superuser)],
-    response_model=UserPublic,
     summary="更新指定用户",
 )
 def update_user(

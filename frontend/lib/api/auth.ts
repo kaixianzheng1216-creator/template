@@ -4,11 +4,9 @@ import { loginLoginAccessToken } from "@/lib/api/generated/endpoints"
 import type { BodyLoginLoginAccessToken } from "@/lib/api/generated/models"
 import { clearAccessToken, setAccessToken } from "@/lib/auth/token-storage"
 
-export type LoginInput = Pick<
-  BodyLoginLoginAccessToken,
-  "username" | "password"
->
-export async function login(input: LoginInput) {
+export async function login(
+  input: Pick<BodyLoginLoginAccessToken, "username" | "password">
+) {
   const token = await loginLoginAccessToken(input)
 
   setAccessToken(token.access_token)

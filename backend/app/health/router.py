@@ -7,7 +7,6 @@ router = APIRouter(prefix="/utils", tags=["utils"])
 
 @router.get(
     "/health-check",
-    response_model=HealthResponse,
     summary="检查服务健康状态",
 )
 async def health_check() -> HealthResponse:

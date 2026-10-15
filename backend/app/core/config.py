@@ -22,7 +22,6 @@ class Settings(BaseSettings):
     FASTAPI_ENV: Literal["development"] | None = None
 
     API_V1_STR: str = "/api/v1"
-    FRONTEND_HOST: str = "http://localhost:3000"
 
     DATABASE_URL: PostgresDsn
 
@@ -31,7 +30,6 @@ class Settings(BaseSettings):
 
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
-    USERNAME_TEST_USER: str = "testuser"
 
     @field_validator("DATABASE_URL", mode="before")
     @classmethod

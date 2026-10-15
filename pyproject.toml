@@ -10,14 +10,3 @@ members = ["backend"]
 extend-exclude = [
     "uv.lock",
 ]
-
-[tool.typos.default]
-extend-ignore-re = [
-    # GitHub usernames in @mentions
-    "@[a-zA-Z0-9](?:-?[a-zA-Z0-9])*",
-    # Name of the package in the PR title
-    "Bump certifi ",
-]
-
-[tool.typos.default.extend-identifiers]
-alls = "alls"

@@ -19,10 +19,9 @@ rsync -av --exclude=".git/" --filter=":- .gitignore" ./ root@your-server.example
 
 ### 环境变量
 
-设置允许访问 API 的前端来源、项目名称和第一个超级用户的用户名：
+设置项目名称和第一个超级用户的用户名：
 
 ```bash
-export FRONTEND_HOST=http://your-server.example.com:8000
 export PROJECT_NAME="Full Stack FastAPI Project"
 export FIRST_SUPERUSER=admin
 ```

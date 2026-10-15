@@ -30,7 +30,6 @@ def login_access_token(
 
 @router.post(
     "/login/test-token",
-    response_model=UserPublic,
     summary="验证访问令牌",
 )
 def test_token(current_user: CurrentUser) -> UserPublic:

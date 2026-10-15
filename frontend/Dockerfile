@@ -41,8 +41,6 @@ FROM docker.m.daocloud.io/library/node:24-alpine AS production
 
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
 WORKDIR /app
 

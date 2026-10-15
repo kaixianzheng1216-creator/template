@@ -18,7 +18,6 @@ router = APIRouter(prefix="/items", tags=["items"])
 
 @router.get(
     "",
-    response_model=ItemsPublic,
     summary="分页获取条目列表",
 )
 def read_items(
@@ -43,7 +42,6 @@ def read_items(
 
 @router.post(
     "",
-    response_model=ItemPublic,
     summary="创建条目",
 )
 def create_item(
@@ -64,19 +62,18 @@ def create_item(
 
 
 @router.get(
-    "/{id}",
-    response_model=ItemPublic,
+    "/{item_id}",
     summary="获取指定条目",
 )
 def read_item(
     session: SessionDep,
     current_user: CurrentUser,
-    id: Annotated[uuid.UUID, Path(description="条目 ID")],
+    item_id: Annotated[uuid.UUID, Path(description="条目 ID")],
 ) -> ItemPublic:
     item = service.get_item(
         session=session,
         current_user=current_user,
-        item_id=id,
+        item_id=item_id,
     )
 
     response = ItemPublic.model_validate(item)
@@ -84,22 +81,21 @@ def read_item(
     return response
 
 
-@router.put(
-    "/{id}",
-    response_model=ItemPublic,
+@router.patch(
+    "/{item_id}",
     summary="更新指定条目",
 )
 def update_item(
     *,
     session: SessionDep,
     current_user: CurrentUser,
-    id: Annotated[uuid.UUID, Path(description="条目 ID")],
+    item_id: Annotated[uuid.UUID, Path(description="条目 ID")],
     item_in: Annotated[ItemUpdate, Body(description="条目更新信息")],
 ) -> ItemPublic:
     item = service.update_item(
         session=session,
         current_user=current_user,
-        item_id=id,
+        item_id=item_id,
         item_in=item_in,
     )
 
@@ -109,17 +105,17 @@ def update_item(
 
 
 @router.delete(
-    "/{id}",
+    "/{item_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="删除指定条目",
 )
 def delete_item(
     session: SessionDep,
     current_user: CurrentUser,
-    id: Annotated[uuid.UUID, Path(description="条目 ID")],
+    item_id: Annotated[uuid.UUID, Path(description="条目 ID")],
 ) -> None:
     service.delete_item(
         session=session,
         current_user=current_user,
-        item_id=id,
+        item_id=item_id,
     )

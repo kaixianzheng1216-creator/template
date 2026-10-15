@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from scalar_fastapi import add_scalar_reference
-from starlette.middleware.cors import CORSMiddleware
 
 from app.api.router import api_router
 from app.core.config import settings
@@ -26,13 +25,5 @@ app = FastAPI(
 register_exception_handlers(app)
 
 add_scalar_reference(app, route="/scalar")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[settings.FRONTEND_HOST],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

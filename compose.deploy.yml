@@ -7,8 +7,6 @@ services:
     restart: always
     ports:
       - "8000:8000"
-    environment:
-      FRONTEND_HOST: ${FRONTEND_HOST:?Variable not set}
 
   frontend:
     restart: always
