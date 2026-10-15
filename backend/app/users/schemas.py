@@ -19,7 +19,6 @@ class UserRegister(SQLModel):
         max_length=128,
         description="登录密码",
     )
-
     full_name: str | None = Field(
         default=None,
         max_length=255,
@@ -71,13 +70,11 @@ class UserCreate(SQLModel):
         max_length=128,
         description="登录密码",
     )
-
     full_name: str | None = Field(
         default=None,
         max_length=255,
         description="用户全名",
     )
-
     is_active: bool = Field(default=True, description="是否启用")
     is_superuser: bool = Field(default=False, description="是否为超级用户")
 
@@ -97,13 +94,11 @@ class UserUpdate(SQLModel):
         max_length=128,
         description="登录密码",
     )
-
     full_name: str | None = Field(
         default=None,
         max_length=255,
         description="用户全名",
     )
-
     is_active: bool | None = Field(default=None, description="是否启用")
     is_superuser: bool | None = Field(
         default=None,
@@ -115,13 +110,10 @@ class UserPublic(SQLModel):
     """用户的公开响应数据。"""
 
     id: uuid.UUID = Field(description="用户 ID")
-
     username: str = Field(description="用户名")
     full_name: str | None = Field(default=None, description="用户全名")
-
     is_active: bool = Field(default=True, description="是否启用")
     is_superuser: bool = Field(default=False, description="是否为超级用户")
-
     created_at: datetime | None = Field(default=None, description="创建时间")
 
 

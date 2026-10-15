@@ -19,17 +19,12 @@ def upgrade() -> None:
     op.create_table(
         "user",
         sa.Column("id", sa.Uuid(), nullable=False),
-
         sa.Column("username", sa.String(length=50), nullable=False),
         sa.Column("hashed_password", sa.String(), nullable=False),
-
         sa.Column("full_name", sa.String(length=255), nullable=True),
-
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("is_superuser", sa.Boolean(), nullable=False),
-
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=True),
-
         sa.PrimaryKeyConstraint("id"),
     )
 
@@ -38,14 +33,10 @@ def upgrade() -> None:
     op.create_table(
         "item",
         sa.Column("id", sa.Uuid(), nullable=False),
-
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("description", sa.String(length=255), nullable=True),
-
         sa.Column("owner_id", sa.Uuid(), nullable=False),
-
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=True),
-
         sa.ForeignKeyConstraint(
             ["owner_id"],
             ["user.id"],
