@@ -29,11 +29,7 @@ API 地址为 `http://localhost:8000`，Swagger UI 位于 `http://localhost:8000
 
 在 `./backend/` 中通过 `uv run` 执行后端命令。请确保编辑器使用项目根目录下的 Python 解释器 `.venv/bin/python`。
 
-在 `./backend/app/models.py` 中修改或添加数据及 SQL 表对应的 SQLModel 模型，在 `./backend/app/api/` 中编写 API 端点，在 `./backend/app/crud.py` 中编写 CRUD（创建、读取、更新、删除）工具函数。
-
-## VS Code
-
-项目已经包含通过 VS Code 调试器运行后端的配置，因此可以使用断点、暂停程序并查看变量等功能。
+在各业务模块的 `models.py` 中维护 SQLModel 数据库模型，在 `router.py` 中定义 API 端点，在 `service.py` 中编写业务逻辑和数据库操作。
 
 ## 使用 Docker Compose 运行后端
 
@@ -50,7 +46,7 @@ $ docker compose watch
 
 `compose.override.yml` 包含本地开发所需的端口发布、源码同步、镜像自动重建和后端重新加载设置。不显式指定配置文件而直接运行 `docker compose` 时，Docker Compose 会自动应用该文件。
 
-要在后端容器中打开 Shell，请执行：
+要在后端容器中打开终端，请执行：
 
 ```console
 $ docker compose exec backend bash
@@ -65,7 +61,7 @@ $ docker compose exec backend bash
 * 修改模型后（例如添加字段），创建一个迁移版本：
 
 ```console
-$ uv run alembic revision --autogenerate -m "Add column last_name to User model"
+$ uv run alembic revision --autogenerate -m "为用户模型添加 last_name 字段"
 ```
 
 * 将 Alembic 目录中生成的文件提交到 Git 仓库。

@@ -9,9 +9,11 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> None:
-    logger.info("Creating initial data")
+    logger.info("开始创建初始数据")
+
     init()
-    logger.info("Initial data created")
+
+    logger.info("初始数据创建完成")
 
 
 def init() -> None:
