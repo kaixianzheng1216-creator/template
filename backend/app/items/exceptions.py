@@ -6,7 +6,7 @@ from app.exceptions import AppException
 class ItemNotFoundError(AppException):
     status_code = status.HTTP_404_NOT_FOUND
     code = "ITEM_NOT_FOUND"
-    message = "条目不存在"
+    message = "内容不存在"
 
 
 class ItemAccessDeniedError(AppException):

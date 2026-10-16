@@ -30,4 +30,4 @@ class PasswordUnchangedError(AppException):
 class SuperuserSelfDeletionError(AppException):
     status_code = status.HTTP_403_FORBIDDEN
     code = "SUPERUSER_SELF_DELETION_FORBIDDEN"
-    message = "超级用户不能删除自己的账号"
+    message = "管理员不能删除自己的账号"
