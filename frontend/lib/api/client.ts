@@ -14,7 +14,7 @@ export class ApiError extends Error {
     public readonly status: number,
     public readonly payload: unknown
   ) {
-    super(`API 请求失败，状态码：${status}`)
+    super(`请求失败（状态码：${status}）`)
     this.name = "ApiError"
   }
 }
@@ -52,7 +52,7 @@ export async function apiFetch<T>(
 
 export function getApiErrorMessage(
   error: unknown,
-  fallback = "操作失败，请稍后重试"
+  fallback = "操作失败，请重试"
 ): string {
   if (!(error instanceof ApiError)) {
     return fallback
