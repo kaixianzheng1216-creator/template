@@ -10,8 +10,6 @@ export async function login(
   const token = await loginLoginAccessToken(input)
 
   setAccessToken(token.access_token)
-
-  return token
 }
 
 export function logout(): void {

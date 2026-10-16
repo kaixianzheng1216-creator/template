@@ -1,6 +1,7 @@
+import "client-only"
+
 import { clearAccessToken, getAccessToken } from "@/lib/auth/token-storage"
 
-const DEFAULT_BACKEND_URL = "http://localhost:8000"
 const NO_CONTENT_STATUS = 204
 const UNAUTHORIZED_STATUS = 401
 
@@ -30,12 +31,13 @@ export async function apiFetch<T>(
     headers.set("Authorization", `Bearer ${accessToken}`)
   }
 
-  const response = await fetch(resolveApiUrl(url), {
+  const response = await fetch(url, {
     ...options,
     headers,
   })
 
-  const payload = await readResponse(response)
+  const payload =
+    response.status === NO_CONTENT_STATUS ? undefined : await response.json()
 
   if (!response.ok) {
     if (response.status === UNAUTHORIZED_STATUS) {
@@ -56,38 +58,7 @@ export function getApiErrorMessage(
     return fallback
   }
 
-  const payload = error.payload as ApiErrorPayload | null
+  const payload = error.payload as ApiErrorPayload | undefined
 
   return payload?.message ?? fallback
-}
-
-function resolveApiUrl(url: string): string {
-  if (typeof window !== "undefined") {
-    return url
-  }
-
-  const backendUrl = (process.env.BACKEND_URL ?? DEFAULT_BACKEND_URL).replace(
-    /\/$/,
-    ""
-  )
-
-  return `${backendUrl}${url}`
-}
-
-async function readResponse(response: Response): Promise<unknown> {
-  if (response.status === NO_CONTENT_STATUS) {
-    return null
-  }
-
-  const text = await response.text()
-
-  if (!text) {
-    return null
-  }
-
-  if (response.headers.get("content-type")?.includes("application/json")) {
-    return JSON.parse(text) as unknown
-  }
-
-  return text
 }
