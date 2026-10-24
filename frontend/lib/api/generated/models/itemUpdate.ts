@@ -9,8 +9,12 @@
  * 更新条目的请求数据。
  */
 export interface ItemUpdate {
-  /** 条目标题 */
-  title?: string | null
+  /**
+   * 条目标题
+   * @minLength 1
+   * @maxLength 255
+   */
+  title: string
   /** 条目描述 */
-  description?: string | null
+  description: string | null
 }

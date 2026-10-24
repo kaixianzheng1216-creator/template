@@ -14,9 +14,9 @@ export interface ItemPublic {
   /** 条目标题 */
   title: string
   /** 条目描述 */
-  description?: string | null
-  /** 所属用户 ID */
+  description: string | null
+  /** Clerk 用户 ID */
   owner_id: string
   /** 创建时间 */
-  created_at?: string | null
+  created_at: string
 }

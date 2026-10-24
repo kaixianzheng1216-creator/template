@@ -3,6 +3,5 @@
 from sqlmodel import SQLModel
 
 from app.items.models import Item
-from app.users.models import User
 
-__all__ = ["Item", "SQLModel", "User"]
+__all__ = ["Item", "SQLModel"]

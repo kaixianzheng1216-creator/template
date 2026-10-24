@@ -4,21 +4,9 @@ from app.exceptions import AppException
 
 
 class InvalidCredentialsError(AppException):
-    status_code = status.HTTP_403_FORBIDDEN
+    status_code = status.HTTP_401_UNAUTHORIZED
     code = "AUTH_INVALID_CREDENTIALS"
-    message = "无法验证登录凭证"
-
-
-class LoginFailedError(AppException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = "AUTH_LOGIN_FAILED"
-    message = "用户名或密码错误"
-
-
-class InactiveUserError(AppException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = "AUTH_USER_INACTIVE"
-    message = "用户已停用"
+    message = "请先登录"
 
 
 class InsufficientPermissionsError(AppException):

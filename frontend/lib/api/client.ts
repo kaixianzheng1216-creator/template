@@ -1,21 +1,13 @@
 import "client-only"
-
-import { clearAccessToken, getAccessToken } from "@/lib/auth/token-storage"
-
-const NO_CONTENT_STATUS = 204
-const UNAUTHORIZED_STATUS = 401
-
-type ApiErrorPayload = {
-  message?: string
-}
+import type { ErrorResponse } from "@/lib/api/generated/models"
 
 export class ApiError extends Error {
-  constructor(
-    public readonly status: number,
-    public readonly payload: unknown
-  ) {
-    super(`请求失败（状态码：${status}）`)
+  readonly status: number
+
+  constructor(status: number, payload?: ErrorResponse) {
+    super(payload?.message ?? "请求失败，请稍后再试")
     this.name = "ApiError"
+    this.status = status
   }
 }
 
@@ -23,42 +15,22 @@ export async function apiFetch<T>(
   url: string,
   options: RequestInit
 ): Promise<T> {
-  const headers = new Headers(options.headers)
-
-  const accessToken = getAccessToken()
-
-  if (accessToken && !headers.has("Authorization")) {
-    headers.set("Authorization", `Bearer ${accessToken}`)
-  }
-
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  })
-
-  const payload =
-    response.status === NO_CONTENT_STATUS ? undefined : await response.json()
+  const response = await fetch(url, options)
 
   if (!response.ok) {
-    if (response.status === UNAUTHORIZED_STATUS) {
-      clearAccessToken()
-    }
-
+    const payload = await response.json().catch(() => undefined)
     throw new ApiError(response.status, payload)
   }
 
-  return payload as T
+  return response.status === 204 ? (undefined as T) : response.json()
 }
 
-export function getApiErrorMessage(
-  error: unknown,
-  fallback = "操作失败，请重试"
-): string {
-  if (!(error instanceof ApiError)) {
-    return fallback
-  }
+export function isAccessError(error: unknown): boolean {
+  return (
+    error instanceof ApiError && (error.status === 401 || error.status === 403)
+  )
+}
 
-  const payload = error.payload as ApiErrorPayload | undefined
-
-  return payload?.message ?? fallback
+export function getApiErrorMessage(error: unknown): string {
+  return error instanceof ApiError ? error.message : "操作失败，请再试一次"
 }

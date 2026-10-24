@@ -5,180 +5,16 @@
  * OpenAPI spec version: 0.1.0
  */
 import type {
-  UpdatePassword,
-  UserCreate,
   UserPublic,
-  UserRegister,
-  UserUpdate,
-  UserUpdateMe,
+  UserRoleUpdate,
+  UserStatusUpdate,
+  UsersListUsersParams,
   UsersPublic,
-  UsersReadUsersParams,
 } from "../../models"
 
 import { apiFetch } from "../../../client"
 
-export const getUsersRegisterUserUrl = () => {
-  return `/api/v1/users/signup`
-}
-
-/**
- * @summary 注册用户
- */
-export const usersRegisterUser = async (
-  userRegister: UserRegister,
-  options?: Parameters<typeof apiFetch>[1]
-): Promise<UserPublic> => {
-  const getHeaders = (
-    h?: NonNullable<RequestInit["headers"]>
-  ): Record<string, string | readonly string[]> => {
-    if (!h) return {}
-    if (h instanceof Headers) return Object.fromEntries(h.entries())
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(
-          h as Iterable<Iterable<string>>,
-          (entry) => Array.from(entry) as [string, string]
-        )
-      )
-    }
-    const headers: Record<string, string | readonly string[]> = {}
-    for (const [name, value] of Object.entries<
-      string | readonly string[] | undefined
-    >(h)) {
-      if (value !== undefined) headers[name] = value
-    }
-    return headers
-  }
-  return apiFetch<UserPublic>(getUsersRegisterUserUrl(), {
-    ...options,
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...getHeaders(options?.headers),
-    },
-    body: JSON.stringify(userRegister),
-  })
-}
-
-export const getUsersReadUserMeUrl = () => {
-  return `/api/v1/users/me`
-}
-
-/**
- * @summary 获取当前用户
- */
-export const usersReadUserMe = async (
-  options?: Parameters<typeof apiFetch>[1]
-): Promise<UserPublic> => {
-  return apiFetch<UserPublic>(getUsersReadUserMeUrl(), {
-    ...options,
-    method: "GET",
-  })
-}
-
-export const getUsersDeleteUserMeUrl = () => {
-  return `/api/v1/users/me`
-}
-
-/**
- * @summary 删除当前用户
- */
-export const usersDeleteUserMe = async (
-  options?: Parameters<typeof apiFetch>[1]
-): Promise<void> => {
-  return apiFetch<void>(getUsersDeleteUserMeUrl(), {
-    ...options,
-    method: "DELETE",
-  })
-}
-
-export const getUsersUpdateUserMeUrl = () => {
-  return `/api/v1/users/me`
-}
-
-/**
- * @summary 更新当前用户
- */
-export const usersUpdateUserMe = async (
-  userUpdateMe: UserUpdateMe,
-  options?: Parameters<typeof apiFetch>[1]
-): Promise<UserPublic> => {
-  const getHeaders = (
-    h?: NonNullable<RequestInit["headers"]>
-  ): Record<string, string | readonly string[]> => {
-    if (!h) return {}
-    if (h instanceof Headers) return Object.fromEntries(h.entries())
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(
-          h as Iterable<Iterable<string>>,
-          (entry) => Array.from(entry) as [string, string]
-        )
-      )
-    }
-    const headers: Record<string, string | readonly string[]> = {}
-    for (const [name, value] of Object.entries<
-      string | readonly string[] | undefined
-    >(h)) {
-      if (value !== undefined) headers[name] = value
-    }
-    return headers
-  }
-  return apiFetch<UserPublic>(getUsersUpdateUserMeUrl(), {
-    ...options,
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...getHeaders(options?.headers),
-    },
-    body: JSON.stringify(userUpdateMe),
-  })
-}
-
-export const getUsersUpdatePasswordMeUrl = () => {
-  return `/api/v1/users/me/password`
-}
-
-/**
- * @summary 更新当前用户密码
- */
-export const usersUpdatePasswordMe = async (
-  updatePassword: UpdatePassword,
-  options?: Parameters<typeof apiFetch>[1]
-): Promise<void> => {
-  const getHeaders = (
-    h?: NonNullable<RequestInit["headers"]>
-  ): Record<string, string | readonly string[]> => {
-    if (!h) return {}
-    if (h instanceof Headers) return Object.fromEntries(h.entries())
-    if (Symbol.iterator in h) {
-      return Object.fromEntries(
-        Array.from(
-          h as Iterable<Iterable<string>>,
-          (entry) => Array.from(entry) as [string, string]
-        )
-      )
-    }
-    const headers: Record<string, string | readonly string[]> = {}
-    for (const [name, value] of Object.entries<
-      string | readonly string[] | undefined
-    >(h)) {
-      if (value !== undefined) headers[name] = value
-    }
-    return headers
-  }
-  return apiFetch<void>(getUsersUpdatePasswordMeUrl(), {
-    ...options,
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...getHeaders(options?.headers),
-    },
-    body: JSON.stringify(updatePassword),
-  })
-}
-
-export const getUsersReadUsersUrl = (params?: UsersReadUsersParams) => {
+export const getUsersListUsersUrl = (params?: UsersListUsersParams) => {
   const normalizedParams = new URLSearchParams()
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -197,25 +33,26 @@ export const getUsersReadUsersUrl = (params?: UsersReadUsersParams) => {
 /**
  * @summary 分页获取用户列表
  */
-export const usersReadUsers = async (
-  params?: UsersReadUsersParams,
+export const usersListUsers = async (
+  params?: UsersListUsersParams,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<UsersPublic> => {
-  return apiFetch<UsersPublic>(getUsersReadUsersUrl(params), {
+  return apiFetch<UsersPublic>(getUsersListUsersUrl(params), {
     ...options,
     method: "GET",
   })
 }
 
-export const getUsersCreateUserUrl = () => {
-  return `/api/v1/users`
+export const getUsersUpdateUserRoleUrl = (userId: string) => {
+  return `/api/v1/users/${userId}/role`
 }
 
 /**
- * @summary 创建用户
+ * @summary 更新用户角色
  */
-export const usersCreateUser = async (
-  userCreate: UserCreate,
+export const usersUpdateUserRole = async (
+  userId: string,
+  userRoleUpdate: UserRoleUpdate,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<UserPublic> => {
   const getHeaders = (
@@ -239,44 +76,27 @@ export const usersCreateUser = async (
     }
     return headers
   }
-  return apiFetch<UserPublic>(getUsersCreateUserUrl(), {
+  return apiFetch<UserPublic>(getUsersUpdateUserRoleUrl(userId), {
     ...options,
-    method: "POST",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       ...getHeaders(options?.headers),
     },
-    body: JSON.stringify(userCreate),
+    body: JSON.stringify(userRoleUpdate),
   })
 }
 
-export const getUsersReadUserByIdUrl = (userId: string) => {
-  return `/api/v1/users/${userId}`
+export const getUsersUpdateUserStatusUrl = (userId: string) => {
+  return `/api/v1/users/${userId}/status`
 }
 
 /**
- * @summary 获取指定用户
+ * @summary 更新用户状态
  */
-export const usersReadUserById = async (
+export const usersUpdateUserStatus = async (
   userId: string,
-  options?: Parameters<typeof apiFetch>[1]
-): Promise<UserPublic> => {
-  return apiFetch<UserPublic>(getUsersReadUserByIdUrl(userId), {
-    ...options,
-    method: "GET",
-  })
-}
-
-export const getUsersUpdateUserUrl = (userId: string) => {
-  return `/api/v1/users/${userId}`
-}
-
-/**
- * @summary 更新指定用户
- */
-export const usersUpdateUser = async (
-  userId: string,
-  userUpdate: UserUpdate,
+  userStatusUpdate: UserStatusUpdate,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<UserPublic> => {
   const getHeaders = (
@@ -300,30 +120,13 @@ export const usersUpdateUser = async (
     }
     return headers
   }
-  return apiFetch<UserPublic>(getUsersUpdateUserUrl(userId), {
+  return apiFetch<UserPublic>(getUsersUpdateUserStatusUrl(userId), {
     ...options,
-    method: "PATCH",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       ...getHeaders(options?.headers),
     },
-    body: JSON.stringify(userUpdate),
-  })
-}
-
-export const getUsersDeleteUserUrl = (userId: string) => {
-  return `/api/v1/users/${userId}`
-}
-
-/**
- * @summary 删除指定用户
- */
-export const usersDeleteUser = async (
-  userId: string,
-  options?: Parameters<typeof apiFetch>[1]
-): Promise<void> => {
-  return apiFetch<void>(getUsersDeleteUserUrl(userId), {
-    ...options,
-    method: "DELETE",
+    body: JSON.stringify(userStatusUpdate),
   })
 }

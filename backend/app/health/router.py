@@ -1,15 +1,16 @@
 from fastapi import APIRouter
+from sqlalchemy import text
 
-from app.health.schemas import HealthResponse
+from app.database import SessionDep
 
-router = APIRouter(prefix="/utils", tags=["utils"])
+router = APIRouter(prefix="/health", tags=["health"])
 
 
 @router.get(
-    "/health-check",
-    summary="检查服务健康状态",
+    "/ready",
+    include_in_schema=False,
+    summary="检查服务就绪状态",
 )
-async def health_check() -> HealthResponse:
-    response = HealthResponse(True)
-
-    return response
+def readiness(session: SessionDep) -> bool:
+    session.execute(text("SELECT 1"))
+    return True

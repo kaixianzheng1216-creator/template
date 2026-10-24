@@ -6,19 +6,19 @@
  */
 
 /**
- * 用户的公开响应数据。
+ * 来自 Clerk 的用户公开数据。
  */
 export interface UserPublic {
-  /** 用户 ID */
+  /** Clerk 用户 ID */
   id: string
-  /** 用户名 */
-  username: string
-  /** 用户全名 */
-  full_name?: string | null
-  /** 是否启用 */
-  is_active?: boolean
-  /** 是否为超级用户 */
-  is_superuser?: boolean
+  /** 主邮箱 */
+  email: string | null
+  /** 姓名 */
+  full_name: string | null
+  /** 是否封禁 */
+  banned: boolean
+  /** 是否为管理员 */
+  is_admin: boolean
   /** 创建时间 */
-  created_at?: string | null
+  created_at: string
 }

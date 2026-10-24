@@ -6,6 +6,9 @@
  */
 
 /**
- * 服务健康状态响应。
+ * 更新 Clerk 用户封禁状态。
  */
-export type HealthResponse = boolean
+export interface UserStatusUpdate {
+  /** 是否封禁 */
+  banned: boolean
+}

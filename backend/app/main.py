@@ -2,12 +2,12 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from scalar_fastapi import add_scalar_reference
 
+from app.api.exception_handlers import register_exception_handlers
 from app.api.router import api_router
-from app.core.config import settings
-from app.exception_handlers import register_exception_handlers
+from app.config import settings
 
 
-def custom_generate_unique_id(route: APIRoute) -> str:
+def generate_operation_id(route: APIRoute) -> str:
     operation_id = route.name
 
     if route.tags:
@@ -18,12 +18,12 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    generate_unique_id_function=custom_generate_unique_id,
+    openapi_url="/api/v1/openapi.json",
+    generate_unique_id_function=generate_operation_id,
 )
 
 register_exception_handlers(app)
 
 add_scalar_reference(app, route="/scalar")
 
-app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router, prefix="/api/v1")
