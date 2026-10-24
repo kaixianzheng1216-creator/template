@@ -9,9 +9,8 @@
 - ▲ 使用 [Next.js](https://nextjs.org)、TypeScript、Tailwind CSS 和 shadcn/ui 构建前端。
 - 🔌 Next.js 通过同源 `/api/v1/*` 代理访问 FastAPI。
 - 🐋 使用 [Docker Compose](https://www.docker.com) 运行本地服务和自托管部署。
-- 🔒 默认采用安全的密码哈希方案。
-- 🔑 支持 JWT（JSON Web Token）身份认证。
-- 👤 使用用户名和密码登录。
+- 🔐 使用 [Clerk](https://clerk.com) 管理注册、登录、密码和会话。
+- 👤 Clerk 是用户资料、状态和角色的唯一事实来源；业务数据只保存稳定的 Clerk User ID。
 
 ### 交互式 API 文档
 

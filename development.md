@@ -2,6 +2,28 @@
 
 ## 本地开发
 
+### 配置 Clerk
+
+先复制根目录的环境变量模板：
+
+```bash
+cp .env.example .env
+```
+
+然后在 Clerk 创建应用，启用邮箱、密码和 Google 登录，并填写本地 `.env` 中留空的 Clerk 配置和数据库密码。
+
+Clerk 是用户资料、角色和封禁状态的唯一事实来源，应用不复制用户表，也不依赖 Webhook。在 Clerk Dashboard 的 **Sessions > Customize session token** 中配置：
+
+```json
+{
+  "metadata": "{{user.public_metadata}}"
+}
+```
+
+然后把首位管理员的 `publicMetadata` 设置为 `{ "role": "admin" }` 并重新登录。其他用户使用 `{ "role": "member" }`。内容只保存稳定的 Clerk User ID，因此姓名和邮箱变化不会改变内容归属。
+
+直接运行 Next.js 时，还需要把 `frontend/.env.example` 复制为 `frontend/.env.local`，并填写项目名称、后端地址以及相同的 Clerk 公钥和密钥。密钥只能用于本地环境，不要提交。
+
 本地开发时，通过 Docker Compose 运行 PostgreSQL，并分别运行 FastAPI 与 Next.js 开发服务器。
 
 启动依赖服务：
@@ -14,7 +36,7 @@ docker compose up -d db
 
 ```bash
 uv sync
-uv run bash scripts/prestart.sh
+uv run alembic upgrade head
 ```
 
 启动 FastAPI 开发服务器：
@@ -41,16 +63,17 @@ pnpm dev
 
 前端地址：<http://localhost:3000>
 
-Next.js 会把 `/api/*` 请求代理到 `BACKEND_URL`，本地默认是 `http://localhost:8000`。
+Next.js 会把 `/api/*` 请求代理到显式配置的 `BACKEND_URL`。
 
 ## 使用 Docker Compose 运行完整应用
 
 要在 Docker Compose 中运行数据库、后端和前端，请执行：
 
 ```bash
-docker compose run --rm backend bash scripts/prestart.sh
 docker compose watch
 ```
+
+`migrate` 服务会在后端启动前自动执行数据库迁移。
 
 现在可以访问以下地址：
 
@@ -70,7 +93,7 @@ docker compose watch
 
 主配置文件 `compose.yml` 包含整个服务栈共享的配置，Docker Compose 会自动加载它。
 
-`compose.override.yml` 添加本地开发配置，例如将源码作为卷挂载。Docker Compose 也会自动加载该文件，并将其配置叠加到 `compose.yml` 之上。
+`compose.override.yml` 添加本地开发配置，通过 Watch 同步源码，在依赖文件变化时重建镜像。Docker Compose 会自动加载该文件，并将其配置叠加到 `compose.yml` 之上。
 
 `compose.deploy.yml` 包含部署专用配置，包括端口发布和自动重启。部署应用时，需要将它与 `compose.yml` 显式组合使用。
 
@@ -84,9 +107,9 @@ docker compose watch
 
 ## `.env` 文件
 
-受版本控制的 `.env` 文件包含本地开发默认值、密码及其他配置。其中的主机名使用 `localhost`，供运行在本机上的进程访问。Docker Compose 会将数据库主机名覆盖为对应的 Compose 服务名。
+受版本控制的 `.env.example` 是本地配置模板；真正的 `.env` 已被 Git 忽略。其中的主机名使用 `localhost`，供运行在本机上的进程访问。Docker Compose 会将数据库主机名覆盖为对应的 Compose 服务名。
 
-请勿在 `.env` 中保存生产环境密钥。部署时，请按照 [Docker Compose 部署指南](./deployment-docker-compose.md)单独配置密钥。
+`.env` 只能保存本地开发配置。部署时，请按照 [Docker Compose 部署指南](./deployment-docker-compose.md)单独配置密钥。
 
 ## 提交前钩子与代码检查
 
