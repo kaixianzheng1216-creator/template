@@ -3,7 +3,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Path, Query, status
 
-from app.auth.dependencies import CurrentUser
+from app.auth.dependencies import CurrentAdmin, CurrentUser
 from app.contents import service
 from app.contents.schemas import (
     ContentBatchDelete,
@@ -16,6 +16,7 @@ from app.contents.schemas import (
 from app.database import SessionDep
 
 router = APIRouter(prefix="/contents", tags=["contents"])
+admin_router = APIRouter(prefix="/admin/contents", tags=["admin-contents"])
 
 
 @router.get(
@@ -29,8 +30,31 @@ def list_contents(
 ) -> ContentsPublic:
     contents, total = service.list_contents(
         session=session,
-        current_user=current_user,
         content_query=content_query,
+        owner_id=current_user.user_id,
+    )
+
+    data: list[ContentPublic] = []
+
+    for content in contents:
+        data.append(ContentPublic.model_validate(content))
+
+    return ContentsPublic(data=data, count=total)
+
+
+@admin_router.get(
+    "",
+    summary="分页获取全部内容列表",
+)
+def list_all_contents(
+    session: SessionDep,
+    _current_admin: CurrentAdmin,
+    content_query: Annotated[ContentListQuery, Query()],
+) -> ContentsPublic:
+    contents, total = service.list_contents(
+        session=session,
+        content_query=content_query,
+        owner_id=None,
     )
 
     data: list[ContentPublic] = []

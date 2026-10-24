@@ -11,10 +11,13 @@ from app.contents.schemas import ContentCreate, ContentListQuery, ContentUpdate
 def list_contents(
     *,
     session: Session,
-    current_user: AuthenticatedUser,
     content_query: ContentListQuery,
+    owner_id: str | None,
 ) -> tuple[list[Content], int]:
-    statement = select(Content).where(Content.owner_id == current_user.user_id)
+    statement = select(Content)
+
+    if owner_id is not None:
+        statement = statement.where(Content.owner_id == owner_id)
 
     title = content_query.title.strip()
 
