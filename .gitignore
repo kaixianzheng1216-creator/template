@@ -1,3 +1,10 @@
 node_modules/
-backend/app/frontend/
-/.idea/*
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.venv/
+.next/
+*.tsbuildinfo
+/.idea/
+/.env

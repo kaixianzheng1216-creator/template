@@ -1,5 +1,4 @@
 services:
-
   db:
     ports:
       - "5432:5432"
@@ -7,10 +6,6 @@ services:
   backend:
     ports:
       - "8000:8000"
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    # command: sleep infinity  # 通过无限循环让容器保持运行但不执行任何操作
     command:
       - uvicorn
       - app.main:app
@@ -26,10 +21,13 @@ services:
           target: /app/backend
           ignore:
             - .venv
+            - pyproject.toml
         - path: ./backend/pyproject.toml
           action: rebuild
-    environment:
-      FASTAPI_ENV: "development"
+        - path: ./uv.lock
+          action: rebuild
+        - path: ./pyproject.toml
+          action: rebuild
 
   frontend:
     ports:
@@ -42,9 +40,14 @@ services:
           action: sync
           target: /app
           ignore:
-            - ./frontend/.next
-            - ./frontend/node_modules
+            - .next
+            - node_modules
+            - package.json
+            - pnpm-lock.yaml
+            - pnpm-workspace.yaml
         - path: ./frontend/package.json
           action: rebuild
         - path: ./frontend/pnpm-lock.yaml
+          action: rebuild
+        - path: ./frontend/pnpm-workspace.yaml
           action: rebuild

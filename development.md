@@ -115,7 +115,7 @@ docker compose watch
 
 本项目使用 [prek](https://prek.j178.dev/) 进行代码检查和格式化，它是 [pre-commit](https://pre-commit.com/) 的现代替代方案。
 
-项目根目录中的 `.pre-commit-config.yaml` 文件包含相关配置。
+项目根目录中的 `.pre-commit-config.yaml` 只运行 Ruff、Mypy 和前端 `check`。
 
 ### 安装 `prek` 以自动运行
 

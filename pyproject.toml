@@ -5,8 +5,3 @@ dev = [
 
 [tool.uv.workspace]
 members = ["backend"]
-
-[tool.typos.files]
-extend-exclude = [
-    "uv.lock",
-]

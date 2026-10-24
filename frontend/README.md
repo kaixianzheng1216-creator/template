@@ -25,7 +25,7 @@ pnpm api:generate
 
 生成结果位于 `lib/api/generated`，不要手动修改。后端接口发生变化后，应重新执行生成命令并提交生成结果。
 
-生成前会先读取 OpenAPI 定义；连接失败、超时或响应无效时终止，不清理已有客户端文件。
+Orval 直接从 `BACKEND_URL` 指向的后端读取 OpenAPI 定义。
 
 生成器使用 `@next/env` 按 Next.js 的规则加载环境文件，与开发服务共用 `.env.local` 中的 `BACKEND_URL`；默认按开发环境加载，设置 `NODE_ENV=production` 时按生产环境加载。
 

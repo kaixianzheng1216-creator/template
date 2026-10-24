@@ -1,26 +1,10 @@
-# See https://pre-commit.com for more information
-# See https://pre-commit.com/hooks.html for more hooks
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
-    hooks:
-      - id: check-added-large-files
-      - id: check-toml
-      - id: check-yaml
-        args:
-          - --unsafe
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-  - repo: https://github.com/crate-ci/typos
-    rev: 00f422f3b19c57bc6338715ebfe3316d38768461 # frozen: v1.50.3
-    hooks:
-      - id: typos
-        args: [--force-exclude]
   - repo: local
     hooks:
       - id: local-ruff-check
         name: ruff check
         entry: uv run ruff check --force-exclude --fix --exit-non-zero-on-fix
+        files: ^backend/app/
         require_serial: true
         language: unsupported
         types: [python]
@@ -28,20 +12,22 @@ repos:
       - id: local-ruff-format
         name: ruff format
         entry: uv run ruff format --force-exclude --exit-non-zero-on-format
+        files: ^backend/app/
         require_serial: true
         language: unsupported
         types: [python]
 
       - id: local-mypy
         name: mypy check
-        entry: uv run mypy backend/app
+        entry: uv run mypy --config-file backend/pyproject.toml backend/app
         require_serial: true
         language: unsupported
         pass_filenames: false
 
-      - id: local-ty
-        name: ty check
-        entry: uv run ty check backend/app
+      - id: local-frontend-check
+        name: frontend check
+        entry: pnpm --dir frontend check
+        files: ^frontend/
         require_serial: true
         language: unsupported
         pass_filenames: false

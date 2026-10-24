@@ -1,10 +1,7 @@
-FROM docker.m.daocloud.io/library/node:24-alpine AS base
+FROM node:24-alpine AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-
-# 使用国内镜像
-ENV NPM_CONFIG_REGISTRY=https://registry.npmmirror.com
 
 RUN corepack enable
 
@@ -27,9 +24,13 @@ CMD ["pnpm", "dev", "--hostname", "0.0.0.0"]
 
 FROM dependencies AS build
 
-ARG BACKEND_URL=http://localhost:8000
+ARG BACKEND_URL
+ARG NEXT_PUBLIC_PROJECT_NAME
+ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 ENV BACKEND_URL=$BACKEND_URL
+ENV NEXT_PUBLIC_PROJECT_NAME=$NEXT_PUBLIC_PROJECT_NAME
+ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY . .
@@ -37,9 +38,10 @@ COPY . .
 RUN pnpm build
 
 
-FROM docker.m.daocloud.io/library/node:24-alpine AS production
+FROM node:24-alpine AS production
 
 ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
 ENV NEXT_TELEMETRY_DISABLED=1
 
 WORKDIR /app
