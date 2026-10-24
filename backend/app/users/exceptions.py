@@ -19,9 +19,3 @@ class ClerkRequestError(AppException):
     status_code = status.HTTP_502_BAD_GATEWAY
     code = "CLERK_REQUEST_FAILED"
     message = "用户服务请求失败"
-
-
-class ClerkUnavailableError(AppException):
-    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
-    code = "CLERK_UNAVAILABLE"
-    message = "用户服务暂时不可用"
