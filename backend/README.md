@@ -19,15 +19,27 @@ $ docker compose up -d db
 
 ```console
 $ uv sync
-$ uv run bash scripts/prestart.sh
+$ uv run alembic upgrade head
 $ uv run uvicorn app.main:app --reload
 ```
 
 API 地址为 `http://localhost:8000`，Swagger UI 位于 `http://localhost:8000/docs`，Scalar 文档位于 `http://localhost:8000/scalar`。
 
+后端使用 Clerk 验证会话，Clerk 是用户资料、角色和封禁状态的唯一事实来源。数据库不保存用户副本；业务数据直接记录 Clerk User ID，用户列表和管理操作通过 Clerk Backend API 完成，因此本地开发不依赖 Webhook 或公网回调地址。运行前需要按照根目录 `.env.example` 配置项目名称、前端地址、Clerk 密钥和数据库连接。
+
+管理员角色保存在 Clerk 用户的 `publicMetadata.role`。在 Clerk Dashboard 的 **Sessions > Customize session token** 中加入以下声明，让前后端可以直接从已验证的会话判断角色：
+
+```json
+{
+  "metadata": "{{user.public_metadata}}"
+}
+```
+
+再为初始管理员设置 `publicMetadata` 为 `{ "role": "admin" }`，并重新登录以刷新会话令牌。普通用户使用 `{ "role": "member" }`。
+
 ## 常规工作流程
 
-在 `./backend/` 中通过 `uv run` 执行后端命令。请确保编辑器使用项目根目录下的 Python 解释器 `.venv/bin/python`。
+在 `./backend/` 中通过 `uv run` 执行后端命令。请将 `backend` 标记为源码根目录，并让编辑器使用项目根目录下的虚拟环境解释器：Linux/macOS 为 `.venv/bin/python`，Windows 为 `.venv\\Scripts\\python.exe`。
 
 在各业务模块的 `models.py` 中维护 SQLModel 数据库模型，在 `router.py` 中定义 API 端点，在 `service.py` 中编写业务逻辑和数据库操作。
 
@@ -36,11 +48,10 @@ API 地址为 `http://localhost:8000`，Swagger UI 位于 `http://localhost:8000
 要在 Docker Compose 中运行后端，请执行：
 
 ```console
-$ docker compose run --rm backend bash scripts/prestart.sh
 $ docker compose watch
 ```
 
-应用地址为 `http://localhost:8000`。
+`migrate` 服务会在后端启动前自动执行数据库迁移。应用地址为 `http://localhost:8000`。
 
 ### Docker Compose 覆盖配置
 
@@ -52,7 +63,19 @@ $ docker compose watch
 $ docker compose exec backend bash
 ```
 
+## 质量检查
+
+在 `backend` 目录执行：
+
+```bash
+uv run mypy app
+uv run ruff check app
+uv run ruff format app --check
+```
+
 ## 数据库迁移
+
+模板仅提供面向空数据库的最终初始化基线，不包含旧认证结构的升级路径。项目开始使用后，应保留已执行的迁移，通过新增迁移演进结构，不再改写初始化基线。
 
 每次修改模型后，请务必为模型创建一个迁移版本，并使用该版本升级数据库。在 `backend` 目录中，通过 `uv` 针对 PostgreSQL 容器运行 Alembic：
 
@@ -71,17 +94,3 @@ $ uv run alembic revision --autogenerate -m "为用户模型添加 last_name 字
 ```console
 $ uv run alembic upgrade head
 ```
-
-如果完全不想使用数据库迁移，请在 `./backend/app/core/db.py` 文件中取消以下结尾代码的注释：
-
-```python
-SQLModel.metadata.create_all(engine)
-```
-
-并注释掉 `scripts/prestart.sh` 文件中包含以下内容的行：
-
-```console
-$ alembic upgrade head
-```
-
-如果不想使用默认模型，希望在没有任何历史迁移版本的情况下从头删除或修改它们，可以删除 `./backend/app/alembic/versions/` 下的迁移版本文件（`.py` Python 文件），然后按上述方式创建第一个迁移。

@@ -6,14 +6,14 @@
  */
 
 /**
- * 条目的公开响应数据。
+ * 内容的公开响应数据。
  */
-export interface ItemPublic {
-  /** 条目 ID */
+export interface ContentPublic {
+  /** 内容 ID */
   id: string
-  /** 条目标题 */
+  /** 内容标题 */
   title: string
-  /** 条目描述 */
+  /** 内容描述 */
   description: string | null
   /** Clerk 用户 ID */
   owner_id: string

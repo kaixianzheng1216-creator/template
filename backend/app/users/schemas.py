@@ -1,120 +1,39 @@
-import uuid
 from datetime import datetime
+from typing import Literal
 
 from sqlmodel import Field, SQLModel
 
-from app.schemas import PaginationResponse
+from app.pagination import ListQuery, PaginationResponse
 
 
-class UserRegister(SQLModel):
-    """用户注册的请求数据。"""
-
-    username: str = Field(
-        min_length=3,
-        max_length=50,
-        description="用户名",
-    )
-    password: str = Field(
-        min_length=8,
-        max_length=128,
-        description="登录密码",
-    )
-    full_name: str | None = Field(
-        default=None,
-        max_length=255,
-        description="用户全名",
-    )
+class UserListQuery(ListQuery):
+    full_name: str = Field(default="", max_length=255, description="姓名包含")
+    email: str = Field(default="", max_length=255, description="邮箱包含")
+    sort: Literal["name", "created_at"] = "created_at"
+    banned: bool | None = Field(default=None, description="是否封禁")
 
 
-class UserUpdateMe(SQLModel):
-    """当前用户更新个人信息的请求数据。"""
+class UserRoleUpdate(SQLModel):
+    """更新 Clerk 用户角色。"""
 
-    username: str | None = Field(
-        default=None,
-        min_length=3,
-        max_length=50,
-        description="用户名",
-    )
-    full_name: str | None = Field(
-        default=None,
-        max_length=255,
-        description="用户全名",
-    )
+    is_admin: bool = Field(description="是否为管理员")
 
 
-class UpdatePassword(SQLModel):
-    """更新当前用户密码的请求数据。"""
+class UserStatusUpdate(SQLModel):
+    """更新 Clerk 用户封禁状态。"""
 
-    current_password: str = Field(
-        min_length=8,
-        max_length=128,
-        description="当前密码",
-    )
-    new_password: str = Field(
-        min_length=8,
-        max_length=128,
-        description="新密码",
-    )
-
-
-class UserCreate(SQLModel):
-    """创建用户的请求数据。"""
-
-    username: str = Field(
-        min_length=3,
-        max_length=50,
-        description="用户名",
-    )
-    password: str = Field(
-        min_length=8,
-        max_length=128,
-        description="登录密码",
-    )
-    full_name: str | None = Field(
-        default=None,
-        max_length=255,
-        description="用户全名",
-    )
-    is_active: bool = Field(default=True, description="是否启用")
-    is_superuser: bool = Field(default=False, description="是否为超级用户")
-
-
-class UserUpdate(SQLModel):
-    """更新用户的请求数据。"""
-
-    username: str | None = Field(
-        default=None,
-        min_length=3,
-        max_length=50,
-        description="用户名",
-    )
-    password: str | None = Field(
-        default=None,
-        min_length=8,
-        max_length=128,
-        description="登录密码",
-    )
-    full_name: str | None = Field(
-        default=None,
-        max_length=255,
-        description="用户全名",
-    )
-    is_active: bool | None = Field(default=None, description="是否启用")
-    is_superuser: bool | None = Field(
-        default=None,
-        description="是否为超级用户",
-    )
+    banned: bool = Field(description="是否封禁")
 
 
 class UserPublic(SQLModel):
-    """用户的公开响应数据。"""
+    """来自 Clerk 的用户公开数据。"""
 
-    id: uuid.UUID = Field(description="用户 ID")
-    username: str = Field(description="用户名")
-    full_name: str | None = Field(default=None, description="用户全名")
-    is_active: bool = Field(default=True, description="是否启用")
-    is_superuser: bool = Field(default=False, description="是否为超级用户")
-    created_at: datetime | None = Field(default=None, description="创建时间")
+    id: str = Field(description="Clerk 用户 ID")
+    email: str | None = Field(description="主邮箱")
+    full_name: str | None = Field(description="姓名")
+    banned: bool = Field(description="是否封禁")
+    is_admin: bool = Field(description="是否为管理员")
+    created_at: datetime = Field(description="创建时间")
 
 
 class UsersPublic(PaginationResponse[UserPublic]):

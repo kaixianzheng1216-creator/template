@@ -5,9 +5,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface ItemBatchDelete {
+export interface ContentBatchDelete {
   /**
-   * 待删除的条目 ID
+   * 待删除的内容 ID
    * @minItems 1
    * @maxItems 100
    */

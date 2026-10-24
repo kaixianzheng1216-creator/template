@@ -1,2 +1,2 @@
-export * from "./items/items"
+export * from "./contents/contents"
 export * from "./users/users"

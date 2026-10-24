@@ -17,7 +17,7 @@ depends_on = None
 
 def upgrade() -> None:
     op.create_table(
-        "item",
+        "content",
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("description", sa.String(length=255), nullable=True),
@@ -25,9 +25,9 @@ def upgrade() -> None:
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("ix_item_owner_id", "item", ["owner_id"], unique=False)
+    op.create_index("ix_content_owner_id", "content", ["owner_id"], unique=False)
 
 
 def downgrade() -> None:
-    op.drop_index("ix_item_owner_id", table_name="item")
-    op.drop_table("item")
+    op.drop_index("ix_content_owner_id", table_name="content")
+    op.drop_table("content")

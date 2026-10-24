@@ -6,15 +6,15 @@
  */
 
 /**
- * 更新条目的请求数据。
+ * 更新内容的请求数据。
  */
-export interface ItemUpdate {
+export interface ContentUpdate {
   /**
-   * 条目标题
+   * 内容标题
    * @minLength 1
    * @maxLength 255
    */
   title: string
-  /** 条目描述 */
+  /** 内容描述 */
   description: string | null
 }

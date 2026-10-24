@@ -4,10 +4,10 @@
  * Full Stack FastAPI Project
  * OpenAPI spec version: 0.1.0
  */
-import type { ItemsListItemsOrder } from "./itemsListItemsOrder"
-import type { ItemsListItemsSort } from "./itemsListItemsSort"
+import type { ContentsListContentsOrder } from "./contentsListContentsOrder"
+import type { ContentsListContentsSort } from "./contentsListContentsSort"
 
-export type ItemsListItemsParams = {
+export type ContentsListContentsParams = {
   /**
    * 跳过的记录数量
    * @minimum 0
@@ -23,7 +23,7 @@ export type ItemsListItemsParams = {
   /**
    * 排序方向
    */
-  order?: ItemsListItemsOrder
+  order?: ContentsListContentsOrder
   /**
    * 标题包含
    * @maxLength 255
@@ -34,7 +34,7 @@ export type ItemsListItemsParams = {
    * @maxLength 255
    */
   description?: string
-  sort?: ItemsListItemsSort
+  sort?: ContentsListContentsSort
   /**
    * 创建时间起点
    */

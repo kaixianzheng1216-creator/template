@@ -9,25 +9,19 @@ class UserNotFoundError(AppException):
     message = "用户不存在"
 
 
-class UsernameAlreadyExistsError(AppException):
+class SelfManagementError(AppException):
     status_code = status.HTTP_409_CONFLICT
-    code = "USERNAME_ALREADY_EXISTS"
-    message = "该用户名已存在"
+    code = "SELF_MANAGEMENT_FORBIDDEN"
+    message = "不能修改自己的角色或状态"
 
 
-class IncorrectPasswordError(AppException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = "INCORRECT_PASSWORD"
-    message = "当前密码错误"
+class ClerkRequestError(AppException):
+    status_code = status.HTTP_502_BAD_GATEWAY
+    code = "CLERK_REQUEST_FAILED"
+    message = "用户服务请求失败"
 
 
-class PasswordUnchangedError(AppException):
-    status_code = status.HTTP_400_BAD_REQUEST
-    code = "PASSWORD_UNCHANGED"
-    message = "新密码不能与当前密码相同"
-
-
-class SuperuserSelfDeletionError(AppException):
-    status_code = status.HTTP_403_FORBIDDEN
-    code = "SUPERUSER_SELF_DELETION_FORBIDDEN"
-    message = "管理员不能删除自己的账号"
+class ClerkUnavailableError(AppException):
+    status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+    code = "CLERK_UNAVAILABLE"
+    message = "用户服务暂时不可用"

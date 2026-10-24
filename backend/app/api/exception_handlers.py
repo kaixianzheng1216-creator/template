@@ -77,7 +77,7 @@ async def http_exception_handler(
     return _create_error_response(
         status_code=http_exception.status_code,
         code=f"HTTP_{http_exception.status_code}",
-        message=http_exception.detail,
+        message=str(http_exception.detail),
         headers=http_exception.headers,
     )
 

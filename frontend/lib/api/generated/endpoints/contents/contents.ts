@@ -5,17 +5,19 @@
  * OpenAPI spec version: 0.1.0
  */
 import type {
-  ItemBatchDelete,
-  ItemCreate,
-  ItemPublic,
-  ItemUpdate,
-  ItemsListItemsParams,
-  ItemsPublic,
+  ContentBatchDelete,
+  ContentCreate,
+  ContentPublic,
+  ContentUpdate,
+  ContentsListContentsParams,
+  ContentsPublic,
 } from "../../models"
 
 import { apiFetch } from "../../../client"
 
-export const getItemsListItemsUrl = (params?: ItemsListItemsParams) => {
+export const getContentsListContentsUrl = (
+  params?: ContentsListContentsParams
+) => {
   const normalizedParams = new URLSearchParams()
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -27,34 +29,34 @@ export const getItemsListItemsUrl = (params?: ItemsListItemsParams) => {
   const stringifiedParams = normalizedParams.toString()
 
   return stringifiedParams.length > 0
-    ? `/api/v1/items?${stringifiedParams}`
-    : `/api/v1/items`
+    ? `/api/v1/contents?${stringifiedParams}`
+    : `/api/v1/contents`
 }
 
 /**
- * @summary 分页获取条目列表
+ * @summary 分页获取内容列表
  */
-export const itemsListItems = async (
-  params?: ItemsListItemsParams,
+export const contentsListContents = async (
+  params?: ContentsListContentsParams,
   options?: Parameters<typeof apiFetch>[1]
-): Promise<ItemsPublic> => {
-  return apiFetch<ItemsPublic>(getItemsListItemsUrl(params), {
+): Promise<ContentsPublic> => {
+  return apiFetch<ContentsPublic>(getContentsListContentsUrl(params), {
     ...options,
     method: "GET",
   })
 }
 
-export const getItemsCreateItemUrl = () => {
-  return `/api/v1/items`
+export const getContentsCreateContentUrl = () => {
+  return `/api/v1/contents`
 }
 
 /**
- * @summary 创建条目
+ * @summary 创建内容
  */
-export const itemsCreateItem = async (
-  itemCreate: ItemCreate,
+export const contentsCreateContent = async (
+  contentCreate: ContentCreate,
   options?: Parameters<typeof apiFetch>[1]
-): Promise<ItemPublic> => {
+): Promise<ContentPublic> => {
   const getHeaders = (
     h?: NonNullable<RequestInit["headers"]>
   ): Record<string, string | readonly string[]> => {
@@ -76,29 +78,29 @@ export const itemsCreateItem = async (
     }
     return headers
   }
-  return apiFetch<ItemPublic>(getItemsCreateItemUrl(), {
+  return apiFetch<ContentPublic>(getContentsCreateContentUrl(), {
     ...options,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...getHeaders(options?.headers),
     },
-    body: JSON.stringify(itemCreate),
+    body: JSON.stringify(contentCreate),
   })
 }
 
-export const getItemsUpdateItemUrl = (itemId: string) => {
-  return `/api/v1/items/${itemId}`
+export const getContentsUpdateContentUrl = (contentId: string) => {
+  return `/api/v1/contents/${contentId}`
 }
 
 /**
- * @summary 更新指定条目
+ * @summary 更新指定内容
  */
-export const itemsUpdateItem = async (
-  itemId: string,
-  itemUpdate: ItemUpdate,
+export const contentsUpdateContent = async (
+  contentId: string,
+  contentUpdate: ContentUpdate,
   options?: Parameters<typeof apiFetch>[1]
-): Promise<ItemPublic> => {
+): Promise<ContentPublic> => {
   const getHeaders = (
     h?: NonNullable<RequestInit["headers"]>
   ): Record<string, string | readonly string[]> => {
@@ -120,26 +122,26 @@ export const itemsUpdateItem = async (
     }
     return headers
   }
-  return apiFetch<ItemPublic>(getItemsUpdateItemUrl(itemId), {
+  return apiFetch<ContentPublic>(getContentsUpdateContentUrl(contentId), {
     ...options,
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
       ...getHeaders(options?.headers),
     },
-    body: JSON.stringify(itemUpdate),
+    body: JSON.stringify(contentUpdate),
   })
 }
 
-export const getItemsDeleteItemsUrl = () => {
-  return `/api/v1/items/bulk-delete`
+export const getContentsDeleteContentsUrl = () => {
+  return `/api/v1/contents/bulk-delete`
 }
 
 /**
- * @summary 批量删除条目
+ * @summary 批量删除内容
  */
-export const itemsDeleteItems = async (
-  itemBatchDelete: ItemBatchDelete,
+export const contentsDeleteContents = async (
+  contentBatchDelete: ContentBatchDelete,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<void> => {
   const getHeaders = (
@@ -163,13 +165,13 @@ export const itemsDeleteItems = async (
     }
     return headers
   }
-  return apiFetch<void>(getItemsDeleteItemsUrl(), {
+  return apiFetch<void>(getContentsDeleteContentsUrl(), {
     ...options,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...getHeaders(options?.headers),
     },
-    body: JSON.stringify(itemBatchDelete),
+    body: JSON.stringify(contentBatchDelete),
   })
 }

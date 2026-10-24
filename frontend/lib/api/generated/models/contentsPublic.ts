@@ -4,14 +4,14 @@
  * Full Stack FastAPI Project
  * OpenAPI spec version: 0.1.0
  */
-import type { ItemPublic } from "./itemPublic"
+import type { ContentPublic } from "./contentPublic"
 
 /**
- * 条目列表的响应数据。
+ * 内容列表的响应数据。
  */
-export interface ItemsPublic {
+export interface ContentsPublic {
   /** 当前页数据 */
-  data: ItemPublic[]
+  data: ContentPublic[]
   /** 记录总数 */
   count: number
 }

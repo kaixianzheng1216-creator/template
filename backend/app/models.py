@@ -2,6 +2,6 @@
 
 from sqlmodel import SQLModel
 
-from app.items.models import Item
+from app.contents.models import Content
 
-__all__ = ["Item", "SQLModel"]
+__all__ = ["Content", "SQLModel"]

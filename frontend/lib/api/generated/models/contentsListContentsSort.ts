@@ -5,10 +5,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type ItemsListItemsSort =
-  (typeof ItemsListItemsSort)[keyof typeof ItemsListItemsSort]
+export type ContentsListContentsSort =
+  (typeof ContentsListContentsSort)[keyof typeof ContentsListContentsSort]
 
-export const ItemsListItemsSort = {
+export const ContentsListContentsSort = {
   title: "title",
   created_at: "created_at",
 } as const
