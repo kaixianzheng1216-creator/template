@@ -9,22 +9,19 @@ from app.models import SQLModel
 config = context.config
 
 assert config.config_file_name is not None
+
 fileConfig(config.config_file_name)
 
-# 用于检测模型变化。
 target_metadata = SQLModel.metadata
-
-
-def get_url():
-    return settings.DATABASE_URL
 
 
 def run_migrations_offline():
     # 仅生成 SQL。
-    url = get_url()
-
     context.configure(
-        url=url, target_metadata=target_metadata, literal_binds=True, compare_type=True
+        url=settings.DATABASE_URL,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -37,7 +34,7 @@ def run_migrations_online():
 
     assert configuration is not None
 
-    configuration["sqlalchemy.url"] = get_url()
+    configuration["sqlalchemy.url"] = settings.DATABASE_URL
 
     connectable = engine_from_config(
         configuration,

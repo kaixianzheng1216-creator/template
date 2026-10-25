@@ -5,6 +5,7 @@ from typing import cast
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from redis.exceptions import RedisError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.exceptions import AppException
@@ -23,6 +24,7 @@ def register_exception_handlers(app: FastAPI) -> None:
         StarletteHTTPException,
         http_exception_handler,
     )
+    app.add_exception_handler(RedisError, redis_exception_handler)
     app.add_exception_handler(Exception, unhandled_exception_handler)
 
 
@@ -79,6 +81,18 @@ async def http_exception_handler(
         code=f"HTTP_{http_exception.status_code}",
         message=str(http_exception.detail),
         headers=http_exception.headers,
+    )
+
+
+async def redis_exception_handler(
+    _request: Request, exception: Exception
+) -> JSONResponse:
+    logger.error("Redis operation failed: error_type=%s", type(exception).__name__)
+
+    return _create_error_response(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        code="AUTH_STORE_UNAVAILABLE",
+        message="认证服务暂不可用，请稍后再试",
     )
 
 
