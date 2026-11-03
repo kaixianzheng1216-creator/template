@@ -1,19 +1,22 @@
 import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Path, Query, status
+from fastapi import APIRouter, Query, status
 
 from app.auth.dependencies import CurrentAdmin, CurrentUser
 from app.contents import service
 from app.contents.schemas import (
-    ContentBatchDelete,
-    ContentCreate,
+    AdminContentListQuery,
+    AdminContentListResponse,
+    AdminContentResponse,
+    ContentBatchDeleteRequest,
+    ContentCreateRequest,
     ContentListQuery,
-    ContentPublic,
-    ContentsPublic,
-    ContentUpdate,
+    ContentListResponse,
+    ContentResponse,
+    ContentUpdateRequest,
 )
-from app.database import SessionDep
+from app.database import DbDep
 
 router = APIRouter(prefix="/contents", tags=["contents"])
 admin_router = APIRouter(prefix="/admin/contents", tags=["admin-contents"])
@@ -21,48 +24,20 @@ admin_router = APIRouter(prefix="/admin/contents", tags=["admin-contents"])
 
 @router.get(
     "",
-    summary="分页获取内容列表",
+    summary="分页查询我的内容",
 )
 def list_contents(
-    session: SessionDep,
+    query: Annotated[ContentListQuery, Query()],
     current_user: CurrentUser,
-    content_query: Annotated[ContentListQuery, Query()],
-) -> ContentsPublic:
-    contents, total = service.list_contents(
-        session=session,
-        content_query=content_query,
-        owner_id=current_user.user_id,
+    db: DbDep,
+) -> ContentListResponse:
+    contents, count = service.list_contents(
+        query=query,
+        owner_id=current_user.id,
+        db=db,
     )
 
-    data: list[ContentPublic] = []
-
-    for content in contents:
-        data.append(ContentPublic.model_validate(content))
-
-    return ContentsPublic(data=data, count=total)
-
-
-@admin_router.get(
-    "",
-    summary="分页获取全部内容列表",
-)
-def list_all_contents(
-    session: SessionDep,
-    _current_admin: CurrentAdmin,
-    content_query: Annotated[ContentListQuery, Query()],
-) -> ContentsPublic:
-    contents, total = service.list_contents(
-        session=session,
-        content_query=content_query,
-        owner_id=None,
-    )
-
-    data: list[ContentPublic] = []
-
-    for content in contents:
-        data.append(ContentPublic.model_validate(content))
-
-    return ContentsPublic(data=data, count=total)
+    return ContentListResponse.model_validate({"data": contents, "count": count})
 
 
 @router.post(
@@ -71,53 +46,112 @@ def list_all_contents(
     summary="创建内容",
 )
 def create_content(
-    session: SessionDep,
+    payload: ContentCreateRequest,
     current_user: CurrentUser,
-    content_create: Annotated[ContentCreate, Body(description="新内容信息")],
-) -> ContentPublic:
+    db: DbDep,
+) -> ContentResponse:
     content = service.create_content(
-        session=session,
-        current_user=current_user,
-        content_create=content_create,
+        payload=payload,
+        owner_id=current_user.id,
+        db=db,
     )
 
-    return ContentPublic.model_validate(content)
+    return ContentResponse.model_validate(content)
 
 
 @router.put(
     "/{content_id}",
-    summary="更新指定内容",
+    summary="更新我的内容",
 )
 def update_content(
-    session: SessionDep,
+    content_id: uuid.UUID,
+    payload: ContentUpdateRequest,
     current_user: CurrentUser,
-    content_id: Annotated[uuid.UUID, Path(description="内容 ID")],
-    content_update: Annotated[ContentUpdate, Body(description="内容更新信息")],
-) -> ContentPublic:
+    db: DbDep,
+) -> ContentResponse:
     content = service.update_content(
-        session=session,
-        current_user=current_user,
         content_id=content_id,
-        content_update=content_update,
+        payload=payload,
+        owner_id=current_user.id,
+        db=db,
     )
 
-    return ContentPublic.model_validate(content)
+    return ContentResponse.model_validate(content)
 
 
 @router.post(
     "/bulk-delete",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="批量删除内容",
+    summary="批量删除我的内容",
 )
 def delete_contents(
-    session: SessionDep,
+    payload: ContentBatchDeleteRequest,
     current_user: CurrentUser,
-    content_batch_delete: Annotated[
-        ContentBatchDelete, Body(description="待删除的内容")
-    ],
+    db: DbDep,
 ) -> None:
     service.delete_contents(
-        session=session,
-        current_user=current_user,
-        content_ids=content_batch_delete.ids,
+        content_ids=payload.ids,
+        owner_id=current_user.id,
+        db=db,
+    )
+
+
+@admin_router.get(
+    "",
+    summary="分页查询所有用户的内容",
+)
+def list_all_contents(
+    query: Annotated[AdminContentListQuery, Query()],
+    _current_admin: CurrentAdmin,
+    db: DbDep,
+) -> AdminContentListResponse:
+    content_owners, count = service.list_admin_contents(
+        query=query,
+        db=db,
+    )
+
+    data: list[AdminContentResponse] = []
+
+    for content, owner in content_owners:
+        data.append(
+            AdminContentResponse.model_validate(content, update={"owner": owner})
+        )
+
+    return AdminContentListResponse(data=data, count=count)
+
+
+@admin_router.put(
+    "/{content_id}",
+    summary="更新用户内容",
+)
+def update_any_content(
+    content_id: uuid.UUID,
+    payload: ContentUpdateRequest,
+    _current_admin: CurrentAdmin,
+    db: DbDep,
+) -> ContentResponse:
+    content = service.update_content(
+        content_id=content_id,
+        payload=payload,
+        owner_id=None,
+        db=db,
+    )
+
+    return ContentResponse.model_validate(content)
+
+
+@admin_router.post(
+    "/bulk-delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="批量删除用户内容",
+)
+def delete_any_contents(
+    payload: ContentBatchDeleteRequest,
+    _current_admin: CurrentAdmin,
+    db: DbDep,
+) -> None:
+    service.delete_contents(
+        content_ids=payload.ids,
+        owner_id=None,
+        db=db,
     )

@@ -5,22 +5,23 @@ from typing import Annotated, Literal
 from pydantic import StringConstraints
 from sqlmodel import Field, SQLModel
 
-from app.pagination import ListQuery, PaginationResponse
+from app.pagination import PaginationQuery, PaginationResponse
 
 ContentTitle = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)
 ]
 
 
-class ContentListQuery(ListQuery):
-    title: str = Field(default="", max_length=255, description="标题包含")
-    description: str = Field(default="", max_length=255, description="说明包含")
+class ContentListQuery(PaginationQuery):
+    """内容查询参数。"""
+
+    search: str = Field(default="", max_length=255, description="按标题或描述搜索")
+    created_after: datetime | None = Field(default=None, description="创建时间下限")
     sort: Literal["title", "created_at"] = "created_at"
-    created_after: datetime | None = Field(default=None, description="创建时间起点")
 
 
-class ContentCreate(SQLModel):
-    """创建内容的请求数据。"""
+class ContentCreateRequest(SQLModel):
+    """内容创建请求。"""
 
     title: ContentTitle = Field(
         description="内容标题",
@@ -32,31 +33,51 @@ class ContentCreate(SQLModel):
     )
 
 
-class ContentUpdate(SQLModel):
-    """更新内容的请求数据。"""
-
-    title: ContentTitle = Field(description="内容标题")
-    description: str | None = Field(
-        max_length=255,
-        description="内容描述",
-    )
+class ContentUpdateRequest(ContentCreateRequest):
+    """内容更新请求。"""
 
 
-class ContentBatchDelete(SQLModel):
+class ContentBatchDeleteRequest(SQLModel):
+    """内容批量删除请求。"""
+
     ids: list[uuid.UUID] = Field(
-        min_length=1, max_length=100, description="待删除的内容 ID"
+        min_length=1, max_length=100, description="待删除内容 ID"
     )
 
 
-class ContentPublic(SQLModel):
-    """内容的公开响应数据。"""
+class ContentResponse(SQLModel):
+    """内容响应。"""
 
     id: uuid.UUID = Field(description="内容 ID")
     title: str = Field(description="内容标题")
     description: str | None = Field(description="内容描述")
-    owner_id: str = Field(description="Clerk 用户 ID")
     created_at: datetime = Field(description="创建时间")
 
 
-class ContentsPublic(PaginationResponse[ContentPublic]):
-    """内容列表的响应数据。"""
+class ContentListResponse(PaginationResponse[ContentResponse]):
+    """内容列表响应。"""
+
+
+class AdminContentListQuery(ContentListQuery):
+    """管理员内容查询参数。"""
+
+    owner: str = Field(default="", max_length=255, description="按邮箱或昵称搜索")
+
+
+class ContentOwnerResponse(SQLModel):
+    """内容所属用户响应。"""
+
+    id: uuid.UUID = Field(description="用户 ID")
+    email: str = Field(description="邮箱")
+    name: str = Field(description="昵称")
+    avatar_url: str = Field(description="按昵称生成的头像地址")
+
+
+class AdminContentResponse(ContentResponse):
+    """管理员内容响应。"""
+
+    owner: ContentOwnerResponse = Field(description="所属用户")
+
+
+class AdminContentListResponse(PaginationResponse[AdminContentResponse]):
+    """管理员内容列表响应。"""
