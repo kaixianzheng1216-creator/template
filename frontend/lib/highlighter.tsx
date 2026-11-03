@@ -6,7 +6,7 @@ import {
 } from "shiki/core"
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript"
 
-// Add the languages you need. Each one loads the first time it is used.
+// 按需添加语言，各语言在首次使用时加载。
 const languages = {
   bash: () => import("shiki/langs/shellscript.mjs"),
   css: () => import("shiki/langs/css.mjs"),
@@ -64,8 +64,8 @@ function getLanguage(language: string) {
   return aliases[name] ?? null
 }
 
-// Loads a language and returns a highlighter for it, or null for a language
-// that is not listed.
+// 加载语言并返回对应的高亮器；未列出的语言
+// 返回 null。
 export async function loadHighlighter(language: string) {
   const lang = getLanguage(language)
 
@@ -80,8 +80,8 @@ export async function loadHighlighter(language: string) {
   }
 
   return {
-    // Returns one React node per line, and the grammar state after the last
-    // line. Pass that state back to continue where the code left off.
+    // 每行返回一个 React 节点，并返回最后一行结束后的语法状态。
+    // 传回该状态即可从上次结束的位置继续处理。
     highlight(code: string, state?: GrammarState) {
       const tokenize = (text: string) =>
         shiki.codeToTokens(text, {
@@ -91,8 +91,8 @@ export async function loadHighlighter(language: string) {
           grammarState: state,
         }).tokens
 
-      // ANSI has no grammar state, so each line is tokenized on its own and
-      // gets the same colors whether it arrives in one piece or streams.
+      // ANSI 没有语法状态，因此每行独立进行词法分析，
+      // 无论一次性输入还是流式输入，颜色都保持一致。
       const tokens =
         lang === "ansi"
           ? code.split("\n").flatMap((line) => tokenize(line))
@@ -116,7 +116,7 @@ export async function loadHighlighter(language: string) {
   }
 }
 
-// Returns one React node per line, or null for a language that is not listed.
+// 每行返回一个 React 节点；未列出的语言返回 null。
 export async function highlightCode(code: string, language: string) {
   const highlighter = await loadHighlighter(language)
 

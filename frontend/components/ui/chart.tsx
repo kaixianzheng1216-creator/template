@@ -5,7 +5,7 @@ import { cn } from "cn"
 import * as RechartsPrimitive from "recharts"
 import type { TooltipValueType } from "recharts"
 
-// Format: { THEME_NAME: CSS_SELECTOR }
+// 格式：{ 主题名称: CSS 选择器 }
 const THEMES = { light: "", dark: ".dark" } as const
 
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const
@@ -32,7 +32,7 @@ function useChart() {
   const context = React.useContext(ChartContext)
 
   if (!context) {
-    throw new Error("useChart must be used within a <ChartContainer />")
+    throw new Error("useChart 必须在 <ChartContainer /> 内使用")
   }
 
   return context

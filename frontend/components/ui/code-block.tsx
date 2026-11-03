@@ -110,7 +110,7 @@ function CodeBlockCopyButton({
         data-copied={copied || undefined}
         variant={variant}
         size={size}
-        aria-label={copied ? "Copied" : "Copy"}
+        aria-label={copied ? "已复制" : "复制"}
         className={cn(className)}
         onClick={(event) => {
           onClick?.(event)
@@ -124,7 +124,7 @@ function CodeBlockCopyButton({
         {copied ? <CheckIcon /> : <CopyIcon />}
       </Button>
       <span aria-live="polite" className="sr-only">
-        {copied ? "Copied" : ""}
+        {copied ? "已复制" : ""}
       </span>
     </>
   )
@@ -197,7 +197,7 @@ function CodeBlockLine({
   children,
   ...props
 }: React.ComponentProps<"span"> & VariantProps<typeof codeBlockLineVariants>) {
-  // An empty line holds a newline so copying a selection keeps blank lines.
+  // 空行保留换行符，以便复制选中内容时保留空行。
   const empty =
     children === undefined ||
     children === null ||
