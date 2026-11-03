@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Response, status
+from fastapi import APIRouter, HTTPException, Request, Response, status
 
 from app.auth import service
 from app.auth.dependencies import SESSION_COOKIE_NAME, CurrentUser
@@ -49,6 +49,25 @@ def login(
         session_data = service.login_with_password(
             email=payload.email, password=payload.password, db=db
         )
+
+    _set_session_cookie(response, session_data)
+
+
+@router.post(
+    "/dev-login",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="开发环境管理员登录",
+    include_in_schema=False,
+)
+def dev_login(db: DbDep, response: Response) -> None:
+    if not settings.DEV_LOGIN_ENABLED:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="接口不存在")
+
+    session_data = service.login_with_password(
+        email=settings.ADMIN_EMAIL,
+        password=settings.ADMIN_PASSWORD.get_secret_value(),
+        db=db,
+    )
 
     _set_session_cookie(response, session_data)
 

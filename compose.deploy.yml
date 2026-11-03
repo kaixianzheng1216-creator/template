@@ -1,4 +1,6 @@
 services:
+  redis:
+    restart: always
 
   db:
     restart: always
