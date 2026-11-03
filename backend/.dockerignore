@@ -3,4 +3,6 @@ __pycache__
 app.egg-info
 *.pyc
 .mypy_cache
+.pytest_cache
+.ruff_cache
 .venv
