@@ -20,12 +20,11 @@ def upgrade() -> None:
         "user",
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("email", sa.String(length=254), nullable=False),
-        sa.Column("password_hash", sa.String(length=255), nullable=True),
+        sa.Column("password_hash", sa.String(length=255)),
         sa.Column("name", sa.String(length=255), nullable=False),
         sa.Column("is_admin", sa.Boolean(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("auth_version", sa.Integer(), nullable=False),
-        sa.Column("email_verified_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -35,13 +34,13 @@ def upgrade() -> None:
         "content",
         sa.Column("id", sa.Uuid(), nullable=False),
         sa.Column("title", sa.String(length=255), nullable=False),
-        sa.Column("description", sa.String(length=255), nullable=True),
+        sa.Column("description", sa.String(length=255)),
         sa.Column("owner_id", sa.Uuid(), nullable=False),
         sa.Column("created_at", sa.DateTime(timezone=True), nullable=False),
         sa.ForeignKeyConstraint(["owner_id"], ["user.id"]),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index("ix_content_owner_id", "content", ["owner_id"], unique=False)
+    op.create_index("ix_content_owner_id", "content", ["owner_id"])
 
 
 def downgrade() -> None:

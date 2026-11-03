@@ -5,111 +5,108 @@ from typing import cast
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from redis.exceptions import RedisError
-from starlette.exceptions import HTTPException as StarletteHTTPException
+from redis.exceptions import ConnectionError as RedisConnectionError
+from redis.exceptions import TimeoutError as RedisTimeoutError
+from starlette.exceptions import HTTPException
 
-from app.exceptions import AppException
-from app.schemas import ErrorDetail, ErrorResponse
+from app.exceptions import AppError
+from app.schemas import ErrorResponse, ValidationErrorDetail
 
 logger = logging.getLogger(__name__)
 
 
-def register_exception_handlers(app: FastAPI) -> None:
-    app.add_exception_handler(AppException, app_exception_handler)
-    app.add_exception_handler(
-        RequestValidationError,
-        validation_exception_handler,
-    )
-    app.add_exception_handler(
-        StarletteHTTPException,
-        http_exception_handler,
-    )
-    app.add_exception_handler(RedisError, redis_exception_handler)
-    app.add_exception_handler(Exception, unhandled_exception_handler)
+def register_error_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(RequestValidationError, handle_validation_error)
+    app.add_exception_handler(AppError, handle_app_error)
+    app.add_exception_handler(HTTPException, handle_http_error)
+
+    app.add_exception_handler(RedisConnectionError, handle_redis_error)
+    app.add_exception_handler(RedisTimeoutError, handle_redis_error)
+
+    app.add_exception_handler(Exception, handle_unexpected_error)
 
 
-async def app_exception_handler(
+async def handle_validation_error(
     _request: Request,
-    exception: Exception,
+    exc: Exception,
 ) -> JSONResponse:
-    app_exception = cast(AppException, exception)
+    error = cast(RequestValidationError, exc)
 
-    return _create_error_response(
-        status_code=app_exception.status_code,
-        code=app_exception.code,
-        message=app_exception.message,
-    )
+    details: list[ValidationErrorDetail] = []
 
-
-async def validation_exception_handler(
-    _request: Request,
-    exception: Exception,
-) -> JSONResponse:
-    validation_exception = cast(RequestValidationError, exception)
-
-    details: list[ErrorDetail] = []
-
-    for error in validation_exception.errors():
+    for issue in error.errors():
         field_parts: list[str] = []
 
-        for part in error["loc"]:
+        for part in issue["loc"]:
             field_parts.append(str(part))
 
         details.append(
-            ErrorDetail(
-                field=".".join(field_parts),
-                type=error["type"],
-            )
+            ValidationErrorDetail(field=".".join(field_parts), type=issue["type"])
         )
 
     return _create_error_response(
         status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         code="REQUEST_VALIDATION_ERROR",
-        message="请求参数验证失败",
+        message="请求参数无效",
         details=details,
     )
 
 
-async def http_exception_handler(
+async def handle_app_error(
     _request: Request,
-    exception: Exception,
+    exc: Exception,
 ) -> JSONResponse:
-    http_exception = cast(StarletteHTTPException, exception)
+    error = cast(AppError, exc)
 
     return _create_error_response(
-        status_code=http_exception.status_code,
-        code=f"HTTP_{http_exception.status_code}",
-        message=str(http_exception.detail),
-        headers=http_exception.headers,
+        status_code=error.status_code,
+        code=error.code,
+        message=error.message,
+        headers=error.headers,
     )
 
 
-async def redis_exception_handler(
-    _request: Request, exception: Exception
+async def handle_http_error(
+    _request: Request,
+    exc: Exception,
 ) -> JSONResponse:
-    logger.error("Redis operation failed: error_type=%s", type(exception).__name__)
+    error = cast(HTTPException, exc)
+
+    return _create_error_response(
+        status_code=error.status_code,
+        code=f"HTTP_{error.status_code}",
+        message=str(error.detail),
+        headers=error.headers,
+    )
+
+
+async def handle_redis_error(
+    _request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    logger.error("Redis 连接失败：%s", type(exc).__name__)
 
     return _create_error_response(
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
         code="AUTH_STORE_UNAVAILABLE",
-        message="认证服务暂不可用，请稍后再试",
+        message="认证服务暂不可用，请稍后重试",
     )
 
 
-async def unhandled_exception_handler(
+async def handle_unexpected_error(
     request: Request,
-    exception: Exception,
+    exc: Exception,
 ) -> JSONResponse:
     logger.exception(
-        "处理请求时发生未捕获异常",
-        exc_info=exception,
+        "请求处理异常",
+        exc_info=exc,
         extra={"path": request.url.path},
     )
 
     return _create_error_response(
-        status_code=AppException.status_code,
-        code=AppException.code,
-        message=AppException.message,
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        code="INTERNAL_SERVER_ERROR",
+        message="服务器内部错误",
     )
 
 
@@ -118,11 +115,13 @@ def _create_error_response(
     status_code: int,
     code: str,
     message: str,
-    details: list[ErrorDetail] | None = None,
+    details: list[ValidationErrorDetail] | None = None,
     headers: Mapping[str, str] | None = None,
 ) -> JSONResponse:
-    content = ErrorResponse(code=code, message=message, details=details).model_dump(
-        exclude_none=True
-    )
+    error = ErrorResponse(code=code, message=message, details=details)
 
-    return JSONResponse(status_code=status_code, content=content, headers=headers)
+    return JSONResponse(
+        status_code=status_code,
+        content=error.model_dump(exclude_none=True),
+        headers=headers,
+    )

@@ -10,7 +10,7 @@ from app.users.router import router as users_router
 api_router = APIRouter(
     responses={
         "default": {"model": ErrorResponse},
-        422: {"model": ErrorResponse, "description": "请求参数验证失败"},
+        422: {"model": ErrorResponse, "description": "请求参数无效"},
     }
 )
 

@@ -1,14 +1,15 @@
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 from app.config import settings
 from app.models import SQLModel
 
 config = context.config
 
-assert config.config_file_name is not None
+if config.config_file_name is None:
+    raise RuntimeError("必须提供 Alembic 配置文件")
 
 fileConfig(config.config_file_name)
 
@@ -21,7 +22,6 @@ def run_migrations_offline():
         url=settings.DATABASE_URL,
         target_metadata=target_metadata,
         literal_binds=True,
-        compare_type=True,
     )
 
     with context.begin_transaction():
@@ -30,21 +30,11 @@ def run_migrations_offline():
 
 def run_migrations_online():
     # 连接数据库并执行迁移。
-    configuration = config.get_section(config.config_ini_section)
-
-    assert configuration is not None
-
-    configuration["sqlalchemy.url"] = settings.DATABASE_URL
-
-    connectable = engine_from_config(
-        configuration,
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    connectable = create_engine(settings.DATABASE_URL, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata, compare_type=True
+            connection=connection, target_metadata=target_metadata
         )
 
         with context.begin_transaction():
