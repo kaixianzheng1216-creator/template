@@ -12,7 +12,12 @@ from app.users.exceptions import (
     UserNotFoundError,
 )
 from app.users.models import User
-from app.users.schemas import UserListRequest, UserProfileUpdateRequest
+from app.users.schemas import (
+    UserListRequest,
+    UserProfileUpdateRequest,
+    UserRoleUpdateRequest,
+    UserStatusUpdateRequest,
+)
 
 
 def update_user_profile(
@@ -74,7 +79,7 @@ def list_users(
 def update_user_role(
     *,
     user_id: uuid.UUID,
-    is_admin: bool,
+    request: UserRoleUpdateRequest,
     current_user: User,
     db: Session,
 ) -> User:
@@ -83,7 +88,7 @@ def update_user_role(
 
     user = _get_user_for_update(user_id=user_id, db=db)
 
-    user.is_admin = is_admin
+    user.is_admin = request.is_admin
 
     db.commit()
 
@@ -95,7 +100,7 @@ def update_user_role(
 def update_user_status(
     *,
     user_id: uuid.UUID,
-    is_active: bool,
+    request: UserStatusUpdateRequest,
     current_user: User,
     db: Session,
 ) -> User:
@@ -104,9 +109,9 @@ def update_user_status(
 
     user = _get_user_for_update(user_id=user_id, db=db)
 
-    user.is_active = is_active
+    user.is_active = request.is_active
 
-    if not is_active:
+    if not request.is_active:
         user.auth_version += 1
 
     db.commit()

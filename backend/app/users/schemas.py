@@ -25,11 +25,15 @@ class UserListRequest(PaginationRequest):
 
     search: str = Field(default="", max_length=255, description="按邮箱或昵称搜索")
     is_active: bool | None = Field(default=None, description="是否启用")
-    sort: Literal["name", "created_at"] = "created_at"
+    sort: Literal["name", "created_at"] = Field(
+        default="created_at", description="排序字段"
+    )
 
 
 class UserRoleUpdateRequest(SQLModel):
     """用户角色更新请求。"""
+
+    model_config = {"extra": "forbid"}
 
     is_admin: bool = Field(description="是否为管理员")
 
@@ -37,13 +41,19 @@ class UserRoleUpdateRequest(SQLModel):
 class UserStatusUpdateRequest(SQLModel):
     """用户状态更新请求。"""
 
+    model_config = {"extra": "forbid"}
+
     is_active: bool = Field(description="是否启用")
 
 
 class UserBatchDeleteRequest(SQLModel):
     """用户批量删除请求。"""
 
-    ids: list[uuid.UUID] = Field(min_length=1, max_length=100)
+    model_config = {"extra": "forbid"}
+
+    ids: list[uuid.UUID] = Field(
+        min_length=1, max_length=100, description="待删除用户 ID"
+    )
 
 
 class UserResponse(SQLModel):

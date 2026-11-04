@@ -6,8 +6,6 @@ from starlette.exceptions import HTTPException
 
 
 class AppError(HTTPException):
-    """业务异常基类。"""
-
     status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
     code: ClassVar[str] = "INTERNAL_SERVER_ERROR"
     detail: str = "服务器内部错误"

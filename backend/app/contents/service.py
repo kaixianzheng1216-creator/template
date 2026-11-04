@@ -146,9 +146,11 @@ def _paginate_contents[T](
         sort_column = col(Content.created_at)
 
     if request.order == "asc":
-        statement = statement.order_by(sort_column.asc(), col(Content.id))
+        sort_order = sort_column.asc()
     else:
-        statement = statement.order_by(sort_column.desc(), col(Content.id))
+        sort_order = sort_column.desc()
+
+    statement = statement.order_by(sort_order, col(Content.id))
 
     statement = statement.offset(request.skip).limit(request.limit)
 

@@ -71,7 +71,7 @@ def update_user_role(
 ) -> UserResponse:
     user = service.update_user_role(
         user_id=user_id,
-        is_admin=request.is_admin,
+        request=request,
         current_user=current_user,
         db=db,
     )
@@ -91,7 +91,7 @@ def update_user_status(
 ) -> UserResponse:
     user = service.update_user_status(
         user_id=user_id,
-        is_active=request.is_active,
+        request=request,
         current_user=current_user,
         db=db,
     )

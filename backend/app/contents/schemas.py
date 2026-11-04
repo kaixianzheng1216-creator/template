@@ -17,11 +17,15 @@ class ContentListRequest(PaginationRequest):
 
     search: str = Field(default="", max_length=255, description="按标题或描述搜索")
     created_after: datetime | None = Field(default=None, description="创建时间下限")
-    sort: Literal["title", "created_at"] = "created_at"
+    sort: Literal["title", "created_at"] = Field(
+        default="created_at", description="排序字段"
+    )
 
 
 class ContentCreateRequest(SQLModel):
     """内容创建请求。"""
+
+    model_config = {"extra": "forbid"}
 
     title: ContentTitle = Field(
         description="内容标题",
@@ -39,6 +43,8 @@ class ContentUpdateRequest(ContentCreateRequest):
 
 class ContentBatchDeleteRequest(SQLModel):
     """内容批量删除请求。"""
+
+    model_config = {"extra": "forbid"}
 
     ids: list[uuid.UUID] = Field(
         min_length=1, max_length=100, description="待删除内容 ID"

@@ -19,40 +19,42 @@ class EmailRequest(SQLModel):
     """邮箱请求。"""
 
     model_config = {"extra": "forbid"}
+
     email: AccountEmail = Field(max_length=254, description="邮箱")
 
 
 class EmailCodeSendRequest(EmailRequest):
     """验证码发送请求。"""
 
-    purpose: EmailCodePurpose = "email_login"
+    purpose: EmailCodePurpose = Field(default="email_login", description="验证码用途")
 
 
 class EmailCodeLoginRequest(EmailRequest):
     """验证码登录请求。"""
 
-    code: EmailCode
+    code: EmailCode = Field(description="邮箱验证码")
 
 
 class PasswordLoginRequest(EmailRequest):
     """密码登录请求。"""
 
-    password: Password
+    password: Password = Field(description="密码")
 
 
 class PasswordResetRequest(EmailRequest):
     """密码重置请求。"""
 
-    code: EmailCode
-    password: Password
+    code: EmailCode = Field(description="邮箱验证码")
+    password: Password = Field(description="密码")
 
 
 class PasswordUpdateRequest(SQLModel):
-    """密码更新请求。"""
+    """密码设置或修改请求。"""
 
     model_config = {"extra": "forbid"}
-    code: EmailCode
-    password: Password
+
+    code: EmailCode = Field(description="邮箱验证码")
+    password: Password = Field(description="密码")
 
 
 class AuthSession(BaseModel):

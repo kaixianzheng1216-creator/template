@@ -74,11 +74,20 @@ async def handle_http_error(
     exc: Exception,
 ) -> JSONResponse:
     error = cast(HTTPException, exc)
+    message = str(error.detail)
+
+    if error.status_code == status.HTTP_404_NOT_FOUND and message == "Not Found":
+        message = "接口不存在"
+    elif (
+        error.status_code == status.HTTP_405_METHOD_NOT_ALLOWED
+        and message == "Method Not Allowed"
+    ):
+        message = "请求方法不支持"
 
     return _create_error_response(
         status_code=error.status_code,
         code=f"HTTP_{error.status_code}",
-        message=str(error.detail),
+        message=message,
         headers=error.headers,
     )
 

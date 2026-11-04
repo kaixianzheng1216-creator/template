@@ -21,7 +21,7 @@ def send_verification_email(
     if purpose == "email_login":
         email_purpose = "登录"
     else:
-        email_purpose = "设置密码"
+        email_purpose = "设置或重置密码"
 
     email_message: resend.Emails.SendParams = {
         "from": f"{settings.PROJECT_NAME} <{settings.EMAIL_FROM}>",

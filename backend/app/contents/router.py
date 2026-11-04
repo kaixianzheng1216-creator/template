@@ -100,7 +100,7 @@ def delete_contents(
     "",
     summary="分页查询所有用户的内容",
 )
-def list_all_contents(
+def list_admin_contents(
     request: Annotated[AdminContentListRequest, Query()],
     _current_admin: CurrentAdmin,
     db: DbDep,
@@ -124,7 +124,7 @@ def list_all_contents(
     "/{content_id}",
     summary="更新用户内容",
 )
-def update_any_content(
+def update_admin_content(
     content_id: uuid.UUID,
     request: ContentUpdateRequest,
     _current_admin: CurrentAdmin,
@@ -145,7 +145,7 @@ def update_any_content(
     status_code=status.HTTP_204_NO_CONTENT,
     summary="批量删除用户内容",
 )
-def delete_any_contents(
+def delete_admin_contents(
     request: ContentBatchDeleteRequest,
     _current_admin: CurrentAdmin,
     db: DbDep,
