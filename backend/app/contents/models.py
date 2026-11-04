@@ -11,6 +11,5 @@ class Content(SQLModel, table=True):
     description: str | None = Field(default=None, max_length=255)
     owner_id: uuid.UUID = Field(foreign_key="user.id", index=True)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        sa_type=DateTime(timezone=True),
+        default_factory=lambda: datetime.now(UTC), sa_type=DateTime(timezone=True)
     )

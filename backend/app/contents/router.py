@@ -22,10 +22,7 @@ router = APIRouter(prefix="/contents", tags=["contents"])
 admin_router = APIRouter(prefix="/admin/contents", tags=["admin-contents"])
 
 
-@router.get(
-    "",
-    summary="分页查询我的内容",
-)
+@router.get("", summary="分页查询我的内容")
 def list_contents(
     request: Annotated[ContentListRequest, Query()],
     current_user: CurrentUser,
@@ -40,11 +37,7 @@ def list_contents(
     return ContentListResponse.model_validate({"data": contents, "count": count})
 
 
-@router.post(
-    "",
-    status_code=status.HTTP_201_CREATED,
-    summary="创建内容",
-)
+@router.post("", status_code=status.HTTP_201_CREATED, summary="创建内容")
 def create_content(
     request: ContentCreateRequest,
     current_user: CurrentUser,
@@ -59,10 +52,7 @@ def create_content(
     return ContentResponse.model_validate(content)
 
 
-@router.put(
-    "/{content_id}",
-    summary="更新我的内容",
-)
+@router.put("/{content_id}", summary="更新我的内容")
 def update_content(
     content_id: uuid.UUID,
     request: ContentUpdateRequest,
@@ -80,9 +70,7 @@ def update_content(
 
 
 @router.post(
-    "/bulk-delete",
-    status_code=status.HTTP_204_NO_CONTENT,
-    summary="批量删除我的内容",
+    "/bulk-delete", status_code=status.HTTP_204_NO_CONTENT, summary="批量删除我的内容"
 )
 def delete_contents(
     request: ContentBatchDeleteRequest,
@@ -90,16 +78,13 @@ def delete_contents(
     db: DbDep,
 ) -> None:
     service.delete_contents(
-        content_ids=request.ids,
+        request=request,
         owner_id=current_user.id,
         db=db,
     )
 
 
-@admin_router.get(
-    "",
-    summary="分页查询所有用户的内容",
-)
+@admin_router.get("", summary="分页查询所有用户的内容")
 def list_admin_contents(
     request: Annotated[AdminContentListRequest, Query()],
     _current_admin: CurrentAdmin,
@@ -120,10 +105,7 @@ def list_admin_contents(
     return AdminContentListResponse(data=data, count=count)
 
 
-@admin_router.put(
-    "/{content_id}",
-    summary="更新用户内容",
-)
+@admin_router.put("/{content_id}", summary="更新所有用户的内容")
 def update_admin_content(
     content_id: uuid.UUID,
     request: ContentUpdateRequest,
@@ -143,7 +125,7 @@ def update_admin_content(
 @admin_router.post(
     "/bulk-delete",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="批量删除用户内容",
+    summary="批量删除所有用户的内容",
 )
 def delete_admin_contents(
     request: ContentBatchDeleteRequest,
@@ -151,7 +133,7 @@ def delete_admin_contents(
     db: DbDep,
 ) -> None:
     service.delete_contents(
-        content_ids=request.ids,
+        request=request,
         owner_id=None,
         db=db,
     )

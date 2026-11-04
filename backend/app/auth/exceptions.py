@@ -21,7 +21,7 @@ class EmailSendError(AppError):
 class InvalidEmailCodeError(AppError):
     status_code = status.HTTP_400_BAD_REQUEST
     code = "AUTH_INVALID_EMAIL_CODE"
-    detail = "验证码无效，请重新获取"
+    detail = "验证码错误或已过期"
 
 
 class InvalidCredentialsError(AppError):

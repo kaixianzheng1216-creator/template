@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import StringConstraints
+from pydantic import AwareDatetime, StringConstraints
 from sqlmodel import Field, SQLModel
 
 from app.pagination import PaginationRequest, PaginationResponse
@@ -16,7 +16,9 @@ class ContentListRequest(PaginationRequest):
     """内容查询参数。"""
 
     search: str = Field(default="", max_length=255, description="按标题或描述搜索")
-    created_after: datetime | None = Field(default=None, description="创建时间下限")
+    created_after: AwareDatetime | None = Field(
+        default=None, description="创建时间下限（含边界，必须带时区）"
+    )
     sort: Literal["title", "created_at"] = Field(
         default="created_at", description="排序字段"
     )
@@ -27,13 +29,9 @@ class ContentCreateRequest(SQLModel):
 
     model_config = {"extra": "forbid"}
 
-    title: ContentTitle = Field(
-        description="内容标题",
-    )
+    title: ContentTitle = Field(description="内容标题")
     description: str | None = Field(
-        default=None,
-        max_length=255,
-        description="内容描述",
+        default=None, max_length=255, description="内容描述"
     )
 
 

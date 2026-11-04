@@ -18,7 +18,14 @@ from app.auth.exceptions import (
     LoginLockedError,
     PasswordResetLockedError,
 )
-from app.auth.schemas import AuthPurpose, AuthSession, EmailCodePurpose
+from app.auth.schemas import (
+    AuthPurpose,
+    AuthSession,
+    EmailCodeLoginRequest,
+    EmailCodePurpose,
+    EmailCodeSendRequest,
+    PasswordLoginRequest,
+)
 from app.config import settings
 from app.redis import redis_client
 from app.users.models import User
@@ -48,7 +55,10 @@ password_hasher = PasswordHash.recommended()
 DUMMY_PASSWORD_HASH = password_hasher.hash("not-the-user-password")
 
 
-def send_email_code(*, email: str, purpose: EmailCodePurpose, db: Session) -> None:
+def send_email_code(*, request: EmailCodeSendRequest, db: Session) -> None:
+    email = request.email
+    purpose = request.purpose
+
     _check_failure_limit(email=email, purpose=purpose)
 
     send_interval_key = redis_keys.email_send_interval(email, purpose)
@@ -78,10 +88,20 @@ def send_email_code(*, email: str, purpose: EmailCodePurpose, db: Session) -> No
 
     redis_client.set(email_code_key, email_code_hash, ex=EMAIL_CODE_TTL_SECONDS)
 
-    send_verification_email(email=email, purpose=purpose, email_code=email_code)
+    send_verification_email(
+        email=email,
+        purpose=purpose,
+        email_code=email_code,
+        expires_in_seconds=EMAIL_CODE_TTL_SECONDS,
+    )
 
 
-def login_with_email_code(*, email: str, email_code: str, db: Session) -> AuthSession:
+def login_with_email_code(
+    *, request: EmailCodeLoginRequest, db: Session
+) -> AuthSession:
+    email = request.email
+    email_code = request.code
+
     _verify_and_delete_email_code(
         email=email, purpose="email_login", email_code=email_code
     )
@@ -107,7 +127,10 @@ def login_with_email_code(*, email: str, email_code: str, db: Session) -> AuthSe
     return session_data
 
 
-def login_with_password(*, email: str, password: str, db: Session) -> AuthSession:
+def login_with_password(*, request: PasswordLoginRequest, db: Session) -> AuthSession:
+    email = request.email
+    password = request.password
+
     _check_failure_limit(email=email, purpose="password_login")
 
     user = db.exec(select(User).where(User.email == email)).one_or_none()

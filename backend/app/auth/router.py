@@ -24,11 +24,7 @@ def send_email_code(
     db: DbDep,
     response: Response,
 ) -> None:
-    service.send_email_code(
-        email=request.email,
-        purpose=request.purpose,
-        db=db,
-    )
+    service.send_email_code(request=request, db=db)
 
     response.headers["Cache-Control"] = "no-store"
 
@@ -42,13 +38,9 @@ def login(
     response: Response,
 ) -> None:
     if isinstance(request, EmailCodeLoginRequest):
-        session_data = service.login_with_email_code(
-            email=request.email, email_code=request.code, db=db
-        )
+        session_data = service.login_with_email_code(request=request, db=db)
     else:
-        session_data = service.login_with_password(
-            email=request.email, password=request.password, db=db
-        )
+        session_data = service.login_with_password(request=request, db=db)
 
     _set_session_cookie(response, session_data)
 

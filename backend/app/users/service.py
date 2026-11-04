@@ -13,6 +13,7 @@ from app.users.exceptions import (
 )
 from app.users.models import User
 from app.users.schemas import (
+    UserBatchDeleteRequest,
     UserListRequest,
     UserProfileUpdateRequest,
     UserRoleUpdateRequest,
@@ -29,7 +30,6 @@ def update_user_profile(
     user.sqlmodel_update(request.model_dump())
 
     db.commit()
-
     db.refresh(user)
 
     return user
@@ -80,10 +80,10 @@ def update_user_role(
     *,
     user_id: uuid.UUID,
     request: UserRoleUpdateRequest,
-    current_user: User,
+    current_admin: User,
     db: Session,
 ) -> User:
-    if user_id == current_user.id:
+    if user_id == current_admin.id:
         raise SelfManagementError
 
     user = _get_user_for_update(user_id=user_id, db=db)
@@ -91,7 +91,6 @@ def update_user_role(
     user.is_admin = request.is_admin
 
     db.commit()
-
     db.refresh(user)
 
     return user
@@ -101,10 +100,10 @@ def update_user_status(
     *,
     user_id: uuid.UUID,
     request: UserStatusUpdateRequest,
-    current_user: User,
+    current_admin: User,
     db: Session,
 ) -> User:
-    if user_id == current_user.id:
+    if user_id == current_admin.id:
         raise SelfManagementError
 
     user = _get_user_for_update(user_id=user_id, db=db)
@@ -115,16 +114,17 @@ def update_user_status(
         user.auth_version += 1
 
     db.commit()
-
     db.refresh(user)
 
     return user
 
 
-def delete_users(*, user_ids: list[uuid.UUID], current_user: User, db: Session) -> None:
-    ids = set(user_ids)
+def delete_users(
+    *, request: UserBatchDeleteRequest, current_admin: User, db: Session
+) -> None:
+    ids = set(request.ids)
 
-    if current_user.id in ids:
+    if current_admin.id in ids:
         raise SelfDeletionError
 
     existing_ids = db.exec(

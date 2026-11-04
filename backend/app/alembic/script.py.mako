@@ -5,9 +5,10 @@
 创建时间：${create_date}
 
 """
-from alembic import op
+
 import sqlalchemy as sa
 import sqlmodel.sql.sqltypes
+from alembic import op
 ${imports if imports else ""}
 
 # Alembic 使用的迁移版本标识。

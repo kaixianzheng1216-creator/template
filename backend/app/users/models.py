@@ -23,8 +23,7 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     auth_version: int = Field(default=0)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC),
-        sa_type=DateTime(timezone=True),
+        default_factory=lambda: datetime.now(UTC), sa_type=DateTime(timezone=True)
     )
 
     @property

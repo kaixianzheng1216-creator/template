@@ -10,6 +10,7 @@ from app.contents.exceptions import ContentNotFoundError
 from app.contents.models import Content
 from app.contents.schemas import (
     AdminContentListRequest,
+    ContentBatchDeleteRequest,
     ContentCreateRequest,
     ContentListRequest,
     ContentUpdateRequest,
@@ -40,9 +41,7 @@ def create_content(
     )
 
     db.add(content)
-
     db.commit()
-
     db.refresh(content)
 
     return content
@@ -68,7 +67,6 @@ def update_content(
     content.sqlmodel_update(request.model_dump())
 
     db.commit()
-
     db.refresh(content)
 
     return content
@@ -76,11 +74,11 @@ def update_content(
 
 def delete_contents(
     *,
-    content_ids: list[uuid.UUID],
+    request: ContentBatchDeleteRequest,
     owner_id: uuid.UUID | None,
     db: Session,
 ) -> None:
-    ids = set(content_ids)
+    ids = set(request.ids)
 
     statement = delete(Content).where(col(Content.id).in_(ids))
 

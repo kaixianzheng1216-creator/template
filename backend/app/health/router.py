@@ -7,11 +7,7 @@ from app.redis import redis_client
 router = APIRouter(prefix="/health", tags=["health"])
 
 
-@router.get(
-    "/ready",
-    include_in_schema=False,
-    summary="检查服务就绪状态",
-)
+@router.get("/ready", include_in_schema=False, summary="检查服务就绪状态")
 def readiness(db: DbDep) -> bool:
     db.exec(select(1))
 

@@ -16,7 +16,7 @@ resend.default_http_client = resend.RequestsClient(timeout=10)
 
 
 def send_verification_email(
-    *, email: str, purpose: EmailCodePurpose, email_code: str
+    *, email: str, purpose: EmailCodePurpose, email_code: str, expires_in_seconds: int
 ) -> None:
     if purpose == "email_login":
         email_purpose = "登录"
@@ -28,7 +28,7 @@ def send_verification_email(
         "to": [email],
         "subject": f"{email_purpose}验证码",
         "html": f"<p>你的{email_purpose}验证码：<strong>{email_code}</strong></p>"
-        "<p>10 分钟内有效，请勿向他人透露。</p>",
+        f"<p>{expires_in_seconds / 60:g} 分钟内有效，请勿向他人透露。</p>",
     }
 
     try:
