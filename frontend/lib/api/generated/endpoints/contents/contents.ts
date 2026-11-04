@@ -51,7 +51,7 @@ export const getContentsCreateContentUrl = () => {
 }
 
 /**
- * @summary 创建内容
+ * @summary 创建我的内容
  */
 export const contentsCreateContent = async (
   contentCreateRequest: ContentCreateRequest,

@@ -1,6 +1,7 @@
 from typing import Annotated, cast
 
-from fastapi import Depends, Request
+from fastapi import Depends
+from fastapi.security import APIKeyCookie
 
 from app import redis_keys
 from app.auth.exceptions import InvalidSessionError, PermissionDeniedError
@@ -11,10 +12,17 @@ from app.users.models import User
 
 SESSION_COOKIE_NAME = "session"
 
+session_cookie = APIKeyCookie(
+    name=SESSION_COOKIE_NAME,
+    scheme_name="SessionCookie",
+    description="登录后由浏览器自动携带的会话 Cookie",
+    auto_error=False,
+)
 
-def get_current_user(db: DbDep, request: Request) -> User:
-    session_token = request.cookies.get(SESSION_COOKIE_NAME)
+SessionToken = Annotated[str | None, Depends(session_cookie)]
 
+
+def get_current_user(db: DbDep, session_token: SessionToken) -> User:
     if session_token is None:
         raise InvalidSessionError
 

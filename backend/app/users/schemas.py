@@ -18,7 +18,7 @@ class UserProfileUpdateRequest(SQLModel):
     name: UserName = Field(description="昵称")
 
 
-class UserListRequest(PaginationRequest):
+class AdminUserListRequest(PaginationRequest):
     search: str = Field(default="", max_length=255, description="按邮箱或昵称搜索")
     is_active: bool | None = Field(default=None, description="是否启用")
     sort: Literal["name", "created_at"] = Field(
@@ -57,5 +57,5 @@ class UserResponse(SQLModel):
     created_at: datetime = Field(description="创建时间")
 
 
-class UserListResponse(PaginationResponse[UserResponse]):
+class AdminUserListResponse(PaginationResponse[UserResponse]):
     pass

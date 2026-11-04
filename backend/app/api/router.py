@@ -5,6 +5,7 @@ from app.contents.router import admin_router as admin_contents_router
 from app.contents.router import router as contents_router
 from app.health.router import router as health_router
 from app.schemas import ErrorResponse
+from app.users.router import admin_router as admin_users_router
 from app.users.router import router as users_router
 
 api_router = APIRouter(
@@ -15,6 +16,7 @@ api_router = APIRouter(
 
 api_router.include_router(auth_router)
 api_router.include_router(users_router)
+api_router.include_router(admin_users_router)
 api_router.include_router(contents_router)
 api_router.include_router(admin_contents_router)
 api_router.include_router(health_router)

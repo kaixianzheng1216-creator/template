@@ -7,9 +7,9 @@ from app.auth.dependencies import CurrentAdmin, CurrentUser
 from app.database import DbDep
 from app.users import service
 from app.users.schemas import (
+    AdminUserListRequest,
+    AdminUserListResponse,
     UserBatchDeleteRequest,
-    UserListRequest,
-    UserListResponse,
     UserProfileUpdateRequest,
     UserResponse,
     UserRoleUpdateRequest,
@@ -17,6 +17,7 @@ from app.users.schemas import (
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
+admin_router = APIRouter(prefix="/admin/users", tags=["admin-users"])
 
 
 @router.get("/me", summary="获取当前用户")
@@ -39,19 +40,24 @@ def update_current_user(
     return UserResponse.model_validate(user)
 
 
-@router.get("", summary="分页查询用户（管理员）")
-def list_users(
-    request: Annotated[UserListRequest, Query()],
+@admin_router.get("", summary="分页查询用户（管理员）")
+def list_admin_users(
+    request: Annotated[AdminUserListRequest, Query()],
     _current_admin: CurrentAdmin,
     db: DbDep,
-) -> UserListResponse:
-    users, count = service.list_users(request=request, db=db)
+) -> AdminUserListResponse:
+    users, count = service.list_admin_users(request=request, db=db)
 
-    return UserListResponse.model_validate({"data": users, "count": count})
+    data: list[UserResponse] = []
+
+    for user in users:
+        data.append(UserResponse.model_validate(user))
+
+    return AdminUserListResponse(data=data, count=count)
 
 
-@router.put("/{user_id}/role", summary="更新用户角色（管理员）")
-def update_user_role(
+@admin_router.put("/{user_id}/role", summary="更新用户角色（管理员）")
+def update_admin_user_role(
     user_id: uuid.UUID,
     request: UserRoleUpdateRequest,
     current_admin: CurrentAdmin,
@@ -67,8 +73,8 @@ def update_user_role(
     return UserResponse.model_validate(user)
 
 
-@router.put("/{user_id}/status", summary="更新用户状态（管理员）")
-def update_user_status(
+@admin_router.put("/{user_id}/status", summary="更新用户状态（管理员）")
+def update_admin_user_status(
     user_id: uuid.UUID,
     request: UserStatusUpdateRequest,
     current_admin: CurrentAdmin,
@@ -84,12 +90,12 @@ def update_user_status(
     return UserResponse.model_validate(user)
 
 
-@router.post(
+@admin_router.post(
     "/bulk-delete",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="批量删除用户及其内容（管理员）",
 )
-def delete_users(
+def delete_admin_users(
     request: UserBatchDeleteRequest,
     current_admin: CurrentAdmin,
     db: DbDep,

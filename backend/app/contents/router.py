@@ -34,10 +34,15 @@ def list_contents(
         db=db,
     )
 
-    return ContentListResponse.model_validate({"data": contents, "count": count})
+    data: list[ContentResponse] = []
+
+    for content in contents:
+        data.append(ContentResponse.model_validate(content))
+
+    return ContentListResponse(data=data, count=count)
 
 
-@router.post("", status_code=status.HTTP_201_CREATED, summary="创建内容")
+@router.post("", status_code=status.HTTP_201_CREATED, summary="创建我的内容")
 def create_content(
     request: ContentCreateRequest,
     current_user: CurrentUser,
@@ -84,7 +89,7 @@ def delete_contents(
     )
 
 
-@admin_router.get("", summary="分页查询所有用户的内容（管理员）")
+@admin_router.get("", summary="分页查询内容（管理员）")
 def list_admin_contents(
     request: Annotated[AdminContentListRequest, Query()],
     _current_admin: CurrentAdmin,
@@ -105,7 +110,7 @@ def list_admin_contents(
     return AdminContentListResponse(data=data, count=count)
 
 
-@admin_router.put("/{content_id}", summary="更新指定内容（管理员）")
+@admin_router.put("/{content_id}", summary="更新内容（管理员）")
 def update_admin_content(
     content_id: uuid.UUID,
     request: ContentUpdateRequest,
@@ -125,7 +130,7 @@ def update_admin_content(
 @admin_router.post(
     "/bulk-delete",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="批量删除指定内容（管理员）",
+    summary="批量删除内容（管理员）",
 )
 def delete_admin_contents(
     request: ContentBatchDeleteRequest,

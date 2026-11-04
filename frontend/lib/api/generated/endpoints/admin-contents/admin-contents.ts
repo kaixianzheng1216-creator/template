@@ -33,7 +33,7 @@ export const getAdminContentsListAdminContentsUrl = (
 }
 
 /**
- * @summary 分页查询所有用户的内容（管理员）
+ * @summary 分页查询内容（管理员）
  */
 export const adminContentsListAdminContents = async (
   params?: AdminContentsListAdminContentsParams,
@@ -53,7 +53,7 @@ export const getAdminContentsUpdateAdminContentUrl = (contentId: string) => {
 }
 
 /**
- * @summary 更新指定内容（管理员）
+ * @summary 更新内容（管理员）
  */
 export const adminContentsUpdateAdminContent = async (
   contentId: string,
@@ -100,7 +100,7 @@ export const getAdminContentsDeleteAdminContentsUrl = () => {
 }
 
 /**
- * @summary 批量删除指定内容（管理员）
+ * @summary 批量删除内容（管理员）
  */
 export const adminContentsDeleteAdminContents = async (
   contentBatchDeleteRequest: ContentBatchDeleteRequest,

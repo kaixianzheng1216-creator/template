@@ -6,7 +6,7 @@
  */
 import type { UserResponse } from "./userResponse"
 
-export interface UserListResponse {
+export interface AdminUserListResponse {
   /** 当前页数据 */
   data: UserResponse[]
   /** 记录总数 */

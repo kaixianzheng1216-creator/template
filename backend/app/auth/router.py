@@ -30,17 +30,29 @@ def send_email_code(
 
 
 @router.post(
-    "/login", status_code=status.HTTP_204_NO_CONTENT, summary="验证码或密码登录"
+    "/login/email-code",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="邮箱验证码登录",
 )
-def login(
-    request: EmailCodeLoginRequest | PasswordLoginRequest,
+def login_with_email_code(
+    request: EmailCodeLoginRequest,
     db: DbDep,
     response: Response,
 ) -> None:
-    if isinstance(request, EmailCodeLoginRequest):
-        session_data = service.login_with_email_code(request=request, db=db)
-    else:
-        session_data = service.login_with_password(request=request, db=db)
+    session_data = service.login_with_email_code(request=request, db=db)
+
+    _set_session_cookie(response, session_data)
+
+
+@router.post(
+    "/login/password", status_code=status.HTTP_204_NO_CONTENT, summary="密码登录"
+)
+def login_with_password(
+    request: PasswordLoginRequest,
+    db: DbDep,
+    response: Response,
+) -> None:
+    session_data = service.login_with_password(request=request, db=db)
 
     _set_session_cookie(response, session_data)
 
@@ -61,7 +73,9 @@ def dev_login(db: DbDep, response: Response) -> None:
 
 
 @router.post(
-    "/reset-password", status_code=status.HTTP_204_NO_CONTENT, summary="验证码重置密码"
+    "/reset-password",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="邮箱验证码重置密码",
 )
 def reset_password(
     request: PasswordResetRequest,

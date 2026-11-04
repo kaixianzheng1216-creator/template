@@ -4,10 +4,10 @@
  * 项目模板
  * OpenAPI 规范版本： 0.1.0
  */
-import type { UsersListUsersOrder } from "./usersListUsersOrder"
-import type { UsersListUsersSort } from "./usersListUsersSort"
+import type { AdminUsersListAdminUsersOrder } from "./adminUsersListAdminUsersOrder"
+import type { AdminUsersListAdminUsersSort } from "./adminUsersListAdminUsersSort"
 
-export type UsersListUsersParams = {
+export type AdminUsersListAdminUsersParams = {
   /**
    * 跳过记录数
    * @minimum 0
@@ -21,7 +21,7 @@ export type UsersListUsersParams = {
    */
   limit?: number
   /** 排序方向 */
-  order?: UsersListUsersOrder
+  order?: AdminUsersListAdminUsersOrder
   /**
    * 按邮箱或昵称搜索
    * @maxLength 255
@@ -30,5 +30,5 @@ export type UsersListUsersParams = {
   /** 是否启用 */
   is_active?: boolean | null
   /** 排序字段 */
-  sort?: UsersListUsersSort
+  sort?: AdminUsersListAdminUsersSort
 }

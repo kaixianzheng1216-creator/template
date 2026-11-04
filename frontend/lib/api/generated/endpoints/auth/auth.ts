@@ -57,16 +57,15 @@ export const authSendEmailCode = async (
   })
 }
 
-export const getAuthLoginUrl = () => {
-  return `/api/v1/auth/login`
+export const getAuthLoginWithEmailCodeUrl = () => {
+  return `/api/v1/auth/login/email-code`
 }
 
 /**
- * @summary 验证码或密码登录
+ * @summary 邮箱验证码登录
  */
-export const authLogin = async (
-  emailCodeLoginRequestPasswordLoginRequest:
-    EmailCodeLoginRequest | PasswordLoginRequest,
+export const authLoginWithEmailCode = async (
+  emailCodeLoginRequest: EmailCodeLoginRequest,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<void> => {
   const getHeaders = (
@@ -90,14 +89,57 @@ export const authLogin = async (
     }
     return headers
   }
-  return apiFetch<void>(getAuthLoginUrl(), {
+  return apiFetch<void>(getAuthLoginWithEmailCodeUrl(), {
     ...options,
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...getHeaders(options?.headers),
     },
-    body: JSON.stringify(emailCodeLoginRequestPasswordLoginRequest),
+    body: JSON.stringify(emailCodeLoginRequest),
+  })
+}
+
+export const getAuthLoginWithPasswordUrl = () => {
+  return `/api/v1/auth/login/password`
+}
+
+/**
+ * @summary 密码登录
+ */
+export const authLoginWithPassword = async (
+  passwordLoginRequest: PasswordLoginRequest,
+  options?: Parameters<typeof apiFetch>[1]
+): Promise<void> => {
+  const getHeaders = (
+    h?: NonNullable<RequestInit["headers"]>
+  ): Record<string, string | readonly string[]> => {
+    if (!h) return {}
+    if (h instanceof Headers) return Object.fromEntries(h.entries())
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(
+          h as Iterable<Iterable<string>>,
+          (entry) => Array.from(entry) as [string, string]
+        )
+      )
+    }
+    const headers: Record<string, string | readonly string[]> = {}
+    for (const [name, value] of Object.entries<
+      string | readonly string[] | undefined
+    >(h)) {
+      if (value !== undefined) headers[name] = value
+    }
+    return headers
+  }
+  return apiFetch<void>(getAuthLoginWithPasswordUrl(), {
+    ...options,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getHeaders(options?.headers),
+    },
+    body: JSON.stringify(passwordLoginRequest),
   })
 }
 
@@ -106,7 +148,7 @@ export const getAuthResetPasswordUrl = () => {
 }
 
 /**
- * @summary 验证码重置密码
+ * @summary 邮箱验证码重置密码
  */
 export const authResetPassword = async (
   passwordResetRequest: PasswordResetRequest,

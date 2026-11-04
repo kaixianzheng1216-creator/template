@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import or_
+from sqlalchemy import or_, update
 from sqlalchemy.orm import Mapped
 from sqlmodel import Session, col, delete, func, select
 from sqlmodel.sql.expression import Select, SelectOfScalar
@@ -54,22 +54,26 @@ def update_content(
     owner_id: uuid.UUID | None,
     db: Session,
 ) -> Content:
-    statement = select(Content).where(Content.id == content_id)
+    statement = (
+        update(Content)
+        .where(col(Content.id) == content_id)
+        .values(**request.model_dump())
+        .returning(Content)
+    )
 
     if owner_id is not None:
-        statement = statement.where(Content.owner_id == owner_id)
+        statement = statement.where(col(Content.owner_id) == owner_id)
 
-    content = db.exec(statement).one_or_none()
+    content = db.exec(statement).scalars().one_or_none()
 
     if content is None:
         raise ContentNotFoundError
 
-    content.sqlmodel_update(request.model_dump())
+    updated_content = Content.model_validate(content)
 
     db.commit()
-    db.refresh(content)
 
-    return content
+    return updated_content
 
 
 def delete_contents(

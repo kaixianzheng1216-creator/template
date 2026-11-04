@@ -7,14 +7,14 @@ from sqlmodel import Session, col, delete, func, select
 
 from app.contents.models import Content
 from app.users.exceptions import (
-    SelfDeletionError,
-    SelfManagementError,
     UserNotFoundError,
+    UserSelfDeletionError,
+    UserSelfManagementError,
 )
 from app.users.models import User
 from app.users.schemas import (
+    AdminUserListRequest,
     UserBatchDeleteRequest,
-    UserListRequest,
     UserProfileUpdateRequest,
     UserRoleUpdateRequest,
     UserStatusUpdateRequest,
@@ -35,9 +35,9 @@ def update_user_profile(
     return user
 
 
-def list_users(
+def list_admin_users(
     *,
-    request: UserListRequest,
+    request: AdminUserListRequest,
     db: Session,
 ) -> tuple[list[User], int]:
     search = request.search.strip()
@@ -84,7 +84,7 @@ def update_user_role(
     db: Session,
 ) -> User:
     if user_id == current_admin.id:
-        raise SelfManagementError
+        raise UserSelfManagementError
 
     user = _get_user_for_update(user_id=user_id, db=db)
 
@@ -104,7 +104,7 @@ def update_user_status(
     db: Session,
 ) -> User:
     if user_id == current_admin.id:
-        raise SelfManagementError
+        raise UserSelfManagementError
 
     user = _get_user_for_update(user_id=user_id, db=db)
 
@@ -125,7 +125,7 @@ def delete_users(
     ids = set(request.ids)
 
     if current_admin.id in ids:
-        raise SelfDeletionError
+        raise UserSelfDeletionError
 
     existing_ids = db.exec(
         select(User.id)
