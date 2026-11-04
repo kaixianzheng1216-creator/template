@@ -21,8 +21,6 @@ class Settings(BaseSettings):
     ADMIN_EMAIL: AccountEmail = Field(max_length=254)
     ADMIN_PASSWORD: SecretStr = Field(min_length=8, max_length=128)
 
-    DEV_LOGIN_ENABLED: bool = False
-
     SESSION_COOKIE_SECURE: bool = True
     SESSION_MAX_AGE_SECONDS: int = Field(default=604800, gt=0)
 

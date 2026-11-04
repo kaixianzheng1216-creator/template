@@ -6,7 +6,7 @@ from app.exceptions import AppError
 class EmailCodeRateLimitError(AppError):
     status_code = status.HTTP_429_TOO_MANY_REQUESTS
     code = "AUTH_EMAIL_RATE_LIMIT"
-    detail = "验证码发送频繁，请稍后重试"
+    detail = "发送请求过于频繁，请稍后重试"
 
     def __init__(self, *, retry_after: int) -> None:
         super().__init__(headers={"Retry-After": str(retry_after)})

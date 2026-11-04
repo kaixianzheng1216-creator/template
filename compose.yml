@@ -62,7 +62,6 @@ services:
     environment:
       REDIS_URL: redis://default:${REDIS_PASSWORD:?Variable not set}@redis:6379/0
       FORWARDED_ALLOW_IPS:
-      DEV_LOGIN_ENABLED: "false"
       EMAIL_CODE_SECRET: ${EMAIL_CODE_SECRET:?Variable not set}
       RESEND_API_KEY: ${RESEND_API_KEY:?Variable not set}
       EMAIL_FROM: ${EMAIL_FROM:?Variable not set}

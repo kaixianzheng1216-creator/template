@@ -62,6 +62,7 @@ def send_email_code(*, request: EmailCodeSendRequest, db: Session) -> None:
     _check_failure_limit(email=email, purpose=purpose)
 
     send_interval_key = redis_keys.email_send_interval(email, purpose)
+
     can_send_code = redis_client.set(
         send_interval_key, "1", ex=EMAIL_CODE_INTERVAL_SECONDS, nx=True
     )
@@ -147,21 +148,6 @@ def login_with_password(*, request: PasswordLoginRequest, db: Session) -> AuthSe
         raise InvalidCredentialsError
 
     _update_failure_count(email=email, purpose="password_login", success=True)
-
-    return AuthSession(user_id=user.id, auth_version=user.auth_version)
-
-
-def login_dev_admin(*, db: Session) -> AuthSession:
-    user = db.exec(
-        select(User).where(
-            User.email == settings.ADMIN_EMAIL,
-            col(User.is_admin).is_(True),
-            col(User.is_active).is_(True),
-        )
-    ).one_or_none()
-
-    if user is None:
-        raise InvalidCredentialsError
 
     return AuthSession(user_id=user.id, auth_version=user.auth_version)
 

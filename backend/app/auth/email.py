@@ -35,6 +35,11 @@ def send_verification_email(
         resend.Emails.send(email_message)
     except ResendError as error:
         logger.error(
-            "验证码邮件发送失败：类型=%s，状态=%s", error.error_type, error.code
+            "验证码邮件发送失败：用途=%s，类型=%s，状态=%s，原因=%s",
+            purpose,
+            error.error_type,
+            error.code,
+            " ".join(error.message.split())[:1000],
         )
+
         raise EmailSendError from None
