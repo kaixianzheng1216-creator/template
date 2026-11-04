@@ -5,9 +5,6 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 密码登录请求。
- */
 export interface PasswordLoginRequest {
   /**
    * 邮箱
@@ -15,6 +12,7 @@ export interface PasswordLoginRequest {
    */
   email: string
   /**
+   * 密码
    * @minLength 8
    * @maxLength 128
    */

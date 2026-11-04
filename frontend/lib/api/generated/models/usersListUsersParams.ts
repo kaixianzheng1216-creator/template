@@ -29,5 +29,6 @@ export type UsersListUsersParams = {
   search?: string
   /** 是否启用 */
   is_active?: boolean | null
+  /** 排序字段 */
   sort?: UsersListUsersSort
 }

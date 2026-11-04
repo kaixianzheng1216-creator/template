@@ -10,7 +10,7 @@ from redis.exceptions import TimeoutError as RedisTimeoutError
 from starlette.exceptions import HTTPException
 
 from app.exceptions import AppError
-from app.schemas import ErrorResponse, ValidationErrorDetail
+from app.schemas import ErrorResponse, ValidationErrorDetailResponse
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ async def handle_validation_error(
 ) -> JSONResponse:
     error = cast(RequestValidationError, exc)
 
-    details: list[ValidationErrorDetail] = []
+    details: list[ValidationErrorDetailResponse] = []
 
     for issue in error.errors():
         field_parts: list[str] = []
@@ -44,7 +44,9 @@ async def handle_validation_error(
             field_parts.append(str(part))
 
         details.append(
-            ValidationErrorDetail(field=".".join(field_parts), type=issue["type"])
+            ValidationErrorDetailResponse(
+                field=".".join(field_parts), type=issue["type"]
+            )
         )
 
     return _create_error_response(
@@ -127,7 +129,7 @@ def _create_error_response(
     status_code: int,
     code: str,
     message: str,
-    details: list[ValidationErrorDetail] | None = None,
+    details: list[ValidationErrorDetailResponse] | None = None,
     headers: Mapping[str, str] | None = None,
 ) -> JSONResponse:
     error = ErrorResponse(code=code, message=message, details=details)

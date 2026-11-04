@@ -5,10 +5,9 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 参数校验错误详情。
- */
-export interface ValidationErrorDetail {
+export interface ValidationErrorDetailResponse {
+  /** 错误字段路径 */
   field: string
+  /** 校验错误类型 */
   type: string
 }

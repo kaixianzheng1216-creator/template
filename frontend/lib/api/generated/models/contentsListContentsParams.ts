@@ -27,7 +27,8 @@ export type ContentsListContentsParams = {
    * @maxLength 255
    */
   search?: string
-  /** 创建时间下限 */
+  /** 创建时间下限（含边界，必须带时区） */
   created_after?: string | null
+  /** 排序字段 */
   sort?: ContentsListContentsSort
 }

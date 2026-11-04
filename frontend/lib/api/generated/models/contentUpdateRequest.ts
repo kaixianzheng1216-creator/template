@@ -5,9 +5,6 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 内容更新请求。
- */
 export interface ContentUpdateRequest {
   /**
    * 内容标题

@@ -5,9 +5,6 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 内容响应。
- */
 export interface ContentResponse {
   /** 内容 ID */
   id: string

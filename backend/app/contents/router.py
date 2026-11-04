@@ -84,7 +84,7 @@ def delete_contents(
     )
 
 
-@admin_router.get("", summary="分页查询所有用户的内容")
+@admin_router.get("", summary="分页查询所有用户的内容（管理员）")
 def list_admin_contents(
     request: Annotated[AdminContentListRequest, Query()],
     _current_admin: CurrentAdmin,
@@ -105,7 +105,7 @@ def list_admin_contents(
     return AdminContentListResponse(data=data, count=count)
 
 
-@admin_router.put("/{content_id}", summary="更新所有用户的内容")
+@admin_router.put("/{content_id}", summary="更新指定内容（管理员）")
 def update_admin_content(
     content_id: uuid.UUID,
     request: ContentUpdateRequest,
@@ -125,7 +125,7 @@ def update_admin_content(
 @admin_router.post(
     "/bulk-delete",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="批量删除所有用户的内容",
+    summary="批量删除指定内容（管理员）",
 )
 def delete_admin_contents(
     request: ContentBatchDeleteRequest,

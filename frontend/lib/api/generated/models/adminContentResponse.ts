@@ -6,9 +6,6 @@
  */
 import type { ContentOwnerResponse } from "./contentOwnerResponse"
 
-/**
- * 管理员内容响应。
- */
 export interface AdminContentResponse {
   /** 内容 ID */
   id: string

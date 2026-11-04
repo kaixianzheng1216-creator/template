@@ -13,16 +13,12 @@ UserName = Annotated[
 
 
 class UserProfileUpdateRequest(SQLModel):
-    """用户资料更新请求。"""
-
     model_config = {"extra": "forbid"}
 
     name: UserName = Field(description="昵称")
 
 
 class UserListRequest(PaginationRequest):
-    """用户查询参数。"""
-
     search: str = Field(default="", max_length=255, description="按邮箱或昵称搜索")
     is_active: bool | None = Field(default=None, description="是否启用")
     sort: Literal["name", "created_at"] = Field(
@@ -31,24 +27,18 @@ class UserListRequest(PaginationRequest):
 
 
 class UserRoleUpdateRequest(SQLModel):
-    """用户角色更新请求。"""
-
     model_config = {"extra": "forbid"}
 
     is_admin: bool = Field(description="是否为管理员")
 
 
 class UserStatusUpdateRequest(SQLModel):
-    """用户状态更新请求。"""
-
     model_config = {"extra": "forbid"}
 
     is_active: bool = Field(description="是否启用")
 
 
 class UserBatchDeleteRequest(SQLModel):
-    """用户批量删除请求。"""
-
     model_config = {"extra": "forbid"}
 
     ids: list[uuid.UUID] = Field(
@@ -57,8 +47,6 @@ class UserBatchDeleteRequest(SQLModel):
 
 
 class UserResponse(SQLModel):
-    """用户响应。"""
-
     id: uuid.UUID = Field(description="用户 ID")
     email: str = Field(description="邮箱")
     has_password: bool = Field(description="是否已设置密码")
@@ -70,4 +58,4 @@ class UserResponse(SQLModel):
 
 
 class UserListResponse(PaginationResponse[UserResponse]):
-    """用户列表响应。"""
+    pass

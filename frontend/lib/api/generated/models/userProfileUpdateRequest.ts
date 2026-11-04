@@ -5,9 +5,6 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 用户资料更新请求。
- */
 export interface UserProfileUpdateRequest {
   /**
    * 昵称

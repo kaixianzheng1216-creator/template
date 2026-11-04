@@ -92,7 +92,7 @@ export const getUsersListUsersUrl = (params?: UsersListUsersParams) => {
 }
 
 /**
- * @summary 分页查询用户
+ * @summary 分页查询用户（管理员）
  */
 export const usersListUsers = async (
   params?: UsersListUsersParams,
@@ -109,7 +109,7 @@ export const getUsersUpdateUserRoleUrl = (userId: string) => {
 }
 
 /**
- * @summary 更新用户角色
+ * @summary 更新用户角色（管理员）
  */
 export const usersUpdateUserRole = async (
   userId: string,
@@ -153,7 +153,7 @@ export const getUsersUpdateUserStatusUrl = (userId: string) => {
 }
 
 /**
- * @summary 更新用户状态
+ * @summary 更新用户状态（管理员）
  */
 export const usersUpdateUserStatus = async (
   userId: string,
@@ -197,7 +197,7 @@ export const getUsersDeleteUsersUrl = () => {
 }
 
 /**
- * @summary 批量删除用户及其内容
+ * @summary 批量删除用户及其内容（管理员）
  */
 export const usersDeleteUsers = async (
   userBatchDeleteRequest: UserBatchDeleteRequest,

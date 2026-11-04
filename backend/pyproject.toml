@@ -42,8 +42,6 @@ select = [
     "F",
     "I",
     "B",
-    "C4",
-    "D101",
     "UP",
     "ARG001",
     "T201",
@@ -54,10 +52,6 @@ ignore = [
     "W191",
     "B904",
 ]
-
-[tool.ruff.lint.per-file-ignores]
-"**/exceptions.py" = ["D101"]
-"**/models.py" = ["D101"]
 
 [tool.ruff.lint.pyupgrade]
 keep-runtime-typing = true

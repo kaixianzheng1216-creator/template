@@ -5,18 +5,19 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 密码重置请求。
- */
 export interface PasswordResetRequest {
   /**
    * 邮箱
    * @maxLength 254
    */
   email: string
-  /** @pattern ^[0-9]{6}$ */
+  /**
+   * 邮箱验证码
+   * @pattern ^[0-9]{6}$
+   */
   code: string
   /**
+   * 密码
    * @minLength 8
    * @maxLength 128
    */

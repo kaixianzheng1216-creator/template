@@ -4,10 +4,10 @@
  * 项目模板
  * OpenAPI 规范版本： 0.1.0
  */
-import type { AdminContentsListAllContentsOrder } from "./adminContentsListAllContentsOrder"
-import type { AdminContentsListAllContentsSort } from "./adminContentsListAllContentsSort"
+import type { AdminContentsListAdminContentsOrder } from "./adminContentsListAdminContentsOrder"
+import type { AdminContentsListAdminContentsSort } from "./adminContentsListAdminContentsSort"
 
-export type AdminContentsListAllContentsParams = {
+export type AdminContentsListAdminContentsParams = {
   /**
    * 跳过记录数
    * @minimum 0
@@ -21,15 +21,16 @@ export type AdminContentsListAllContentsParams = {
    */
   limit?: number
   /** 排序方向 */
-  order?: AdminContentsListAllContentsOrder
+  order?: AdminContentsListAdminContentsOrder
   /**
    * 按标题或描述搜索
    * @maxLength 255
    */
   search?: string
-  /** 创建时间下限 */
+  /** 创建时间下限（含边界，必须带时区） */
   created_after?: string | null
-  sort?: AdminContentsListAllContentsSort
+  /** 排序字段 */
+  sort?: AdminContentsListAdminContentsSort
   /**
    * 按邮箱或昵称搜索
    * @maxLength 255

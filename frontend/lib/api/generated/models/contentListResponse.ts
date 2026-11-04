@@ -6,9 +6,6 @@
  */
 import type { ContentResponse } from "./contentResponse"
 
-/**
- * 内容列表响应。
- */
 export interface ContentListResponse {
   /** 当前页数据 */
   data: ContentResponse[]

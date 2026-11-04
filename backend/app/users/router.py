@@ -39,7 +39,7 @@ def update_current_user(
     return UserResponse.model_validate(user)
 
 
-@router.get("", summary="分页查询用户")
+@router.get("", summary="分页查询用户（管理员）")
 def list_users(
     request: Annotated[UserListRequest, Query()],
     _current_admin: CurrentAdmin,
@@ -50,7 +50,7 @@ def list_users(
     return UserListResponse.model_validate({"data": users, "count": count})
 
 
-@router.put("/{user_id}/role", summary="更新用户角色")
+@router.put("/{user_id}/role", summary="更新用户角色（管理员）")
 def update_user_role(
     user_id: uuid.UUID,
     request: UserRoleUpdateRequest,
@@ -67,7 +67,7 @@ def update_user_role(
     return UserResponse.model_validate(user)
 
 
-@router.put("/{user_id}/status", summary="更新用户状态")
+@router.put("/{user_id}/status", summary="更新用户状态（管理员）")
 def update_user_status(
     user_id: uuid.UUID,
     request: UserStatusUpdateRequest,
@@ -87,7 +87,7 @@ def update_user_status(
 @router.post(
     "/bulk-delete",
     status_code=status.HTTP_204_NO_CONTENT,
-    summary="批量删除用户及其内容",
+    summary="批量删除用户及其内容（管理员）",
 )
 def delete_users(
     request: UserBatchDeleteRequest,

@@ -6,9 +6,6 @@
  */
 import type { AdminContentResponse } from "./adminContentResponse"
 
-/**
- * 管理员内容列表响应。
- */
 export interface AdminContentListResponse {
   /** 当前页数据 */
   data: AdminContentResponse[]

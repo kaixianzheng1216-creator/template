@@ -6,9 +6,6 @@
  */
 import type { UserResponse } from "./userResponse"
 
-/**
- * 用户列表响应。
- */
 export interface UserListResponse {
   /** 当前页数据 */
   data: UserResponse[]

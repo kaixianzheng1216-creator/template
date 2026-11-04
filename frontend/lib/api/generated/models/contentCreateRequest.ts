@@ -5,9 +5,6 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 内容创建请求。
- */
 export interface ContentCreateRequest {
   /**
    * 内容标题

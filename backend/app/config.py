@@ -7,8 +7,6 @@ from app.schemas import AccountEmail
 
 
 class Settings(BaseSettings):
-    """应用配置。"""
-
     model_config = SettingsConfigDict(
         env_file=Path(__file__).resolve().parents[2] / ".env",
         extra="ignore",

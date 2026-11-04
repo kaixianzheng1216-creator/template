@@ -6,7 +6,7 @@
  */
 import type {
   AdminContentListResponse,
-  AdminContentsListAllContentsParams,
+  AdminContentsListAdminContentsParams,
   ContentBatchDeleteRequest,
   ContentResponse,
   ContentUpdateRequest,
@@ -14,8 +14,8 @@ import type {
 
 import { apiFetch } from "../../../client"
 
-export const getAdminContentsListAllContentsUrl = (
-  params?: AdminContentsListAllContentsParams
+export const getAdminContentsListAdminContentsUrl = (
+  params?: AdminContentsListAdminContentsParams
 ) => {
   const normalizedParams = new URLSearchParams()
 
@@ -33,14 +33,14 @@ export const getAdminContentsListAllContentsUrl = (
 }
 
 /**
- * @summary 分页查询全部内容
+ * @summary 分页查询所有用户的内容（管理员）
  */
-export const adminContentsListAllContents = async (
-  params?: AdminContentsListAllContentsParams,
+export const adminContentsListAdminContents = async (
+  params?: AdminContentsListAdminContentsParams,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<AdminContentListResponse> => {
   return apiFetch<AdminContentListResponse>(
-    getAdminContentsListAllContentsUrl(params),
+    getAdminContentsListAdminContentsUrl(params),
     {
       ...options,
       method: "GET",
@@ -48,14 +48,14 @@ export const adminContentsListAllContents = async (
   )
 }
 
-export const getAdminContentsUpdateAnyContentUrl = (contentId: string) => {
+export const getAdminContentsUpdateAdminContentUrl = (contentId: string) => {
   return `/api/v1/admin/contents/${contentId}`
 }
 
 /**
- * @summary 更新任意内容
+ * @summary 更新指定内容（管理员）
  */
-export const adminContentsUpdateAnyContent = async (
+export const adminContentsUpdateAdminContent = async (
   contentId: string,
   contentUpdateRequest: ContentUpdateRequest,
   options?: Parameters<typeof apiFetch>[1]
@@ -82,7 +82,7 @@ export const adminContentsUpdateAnyContent = async (
     return headers
   }
   return apiFetch<ContentResponse>(
-    getAdminContentsUpdateAnyContentUrl(contentId),
+    getAdminContentsUpdateAdminContentUrl(contentId),
     {
       ...options,
       method: "PUT",
@@ -95,14 +95,14 @@ export const adminContentsUpdateAnyContent = async (
   )
 }
 
-export const getAdminContentsDeleteAnyContentsUrl = () => {
+export const getAdminContentsDeleteAdminContentsUrl = () => {
   return `/api/v1/admin/contents/bulk-delete`
 }
 
 /**
- * @summary 批量删除任意内容
+ * @summary 批量删除指定内容（管理员）
  */
-export const adminContentsDeleteAnyContents = async (
+export const adminContentsDeleteAdminContents = async (
   contentBatchDeleteRequest: ContentBatchDeleteRequest,
   options?: Parameters<typeof apiFetch>[1]
 ): Promise<void> => {
@@ -127,7 +127,7 @@ export const adminContentsDeleteAnyContents = async (
     }
     return headers
   }
-  return apiFetch<void>(getAdminContentsDeleteAnyContentsUrl(), {
+  return apiFetch<void>(getAdminContentsDeleteAdminContentsUrl(), {
     ...options,
     method: "POST",
     headers: {

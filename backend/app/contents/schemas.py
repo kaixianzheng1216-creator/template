@@ -13,8 +13,6 @@ ContentTitle = Annotated[
 
 
 class ContentListRequest(PaginationRequest):
-    """内容查询参数。"""
-
     search: str = Field(default="", max_length=255, description="按标题或描述搜索")
     created_after: AwareDatetime | None = Field(
         default=None, description="创建时间下限（含边界，必须带时区）"
@@ -25,8 +23,6 @@ class ContentListRequest(PaginationRequest):
 
 
 class ContentCreateRequest(SQLModel):
-    """内容创建请求。"""
-
     model_config = {"extra": "forbid"}
 
     title: ContentTitle = Field(description="内容标题")
@@ -36,12 +32,10 @@ class ContentCreateRequest(SQLModel):
 
 
 class ContentUpdateRequest(ContentCreateRequest):
-    """内容更新请求。"""
+    pass
 
 
 class ContentBatchDeleteRequest(SQLModel):
-    """内容批量删除请求。"""
-
     model_config = {"extra": "forbid"}
 
     ids: list[uuid.UUID] = Field(
@@ -50,8 +44,6 @@ class ContentBatchDeleteRequest(SQLModel):
 
 
 class ContentResponse(SQLModel):
-    """内容响应。"""
-
     id: uuid.UUID = Field(description="内容 ID")
     title: str = Field(description="内容标题")
     description: str | None = Field(description="内容描述")
@@ -59,18 +51,14 @@ class ContentResponse(SQLModel):
 
 
 class ContentListResponse(PaginationResponse[ContentResponse]):
-    """内容列表响应。"""
+    pass
 
 
 class AdminContentListRequest(ContentListRequest):
-    """管理员内容查询参数。"""
-
     owner: str = Field(default="", max_length=255, description="按邮箱或昵称搜索")
 
 
 class ContentOwnerResponse(SQLModel):
-    """内容所属用户响应。"""
-
     id: uuid.UUID = Field(description="用户 ID")
     email: str = Field(description="邮箱")
     name: str = Field(description="昵称")
@@ -78,10 +66,8 @@ class ContentOwnerResponse(SQLModel):
 
 
 class AdminContentResponse(ContentResponse):
-    """管理员内容响应。"""
-
     owner: ContentOwnerResponse = Field(description="所属用户")
 
 
 class AdminContentListResponse(PaginationResponse[AdminContentResponse]):
-    """管理员内容列表响应。"""
+    pass

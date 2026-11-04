@@ -5,13 +5,14 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 密码更新请求。
- */
 export interface PasswordUpdateRequest {
-  /** @pattern ^[0-9]{6}$ */
+  /**
+   * 邮箱验证码
+   * @pattern ^[0-9]{6}$
+   */
   code: string
   /**
+   * 密码
    * @minLength 8
    * @maxLength 128
    */

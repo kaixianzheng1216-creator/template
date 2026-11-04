@@ -5,9 +5,6 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 用户响应。
- */
 export interface UserResponse {
   /** 用户 ID */
   id: string
@@ -17,7 +14,7 @@ export interface UserResponse {
   has_password: boolean
   /** 昵称 */
   name: string
-  /** 按昵称生成的头像地址 */
+  /** 头像地址 */
   avatar_url: string
   /** 是否为管理员 */
   is_admin: boolean

@@ -6,14 +6,12 @@
  */
 import type { EmailCodeSendRequestPurpose } from "./emailCodeSendRequestPurpose"
 
-/**
- * 验证码发送请求。
- */
 export interface EmailCodeSendRequest {
   /**
    * 邮箱
    * @maxLength 254
    */
   email: string
+  /** 验证码用途 */
   purpose?: EmailCodeSendRequestPurpose
 }

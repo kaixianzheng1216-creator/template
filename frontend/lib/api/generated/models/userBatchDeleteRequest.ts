@@ -5,11 +5,9 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 用户批量删除请求。
- */
 export interface UserBatchDeleteRequest {
   /**
+   * 待删除用户 ID
    * @minItems 1
    * @maxItems 100
    */

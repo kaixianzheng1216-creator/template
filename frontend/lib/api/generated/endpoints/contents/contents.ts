@@ -34,7 +34,7 @@ export const getContentsListContentsUrl = (
 }
 
 /**
- * @summary 分页查询内容
+ * @summary 分页查询我的内容
  */
 export const contentsListContents = async (
   params?: ContentsListContentsParams,
@@ -94,7 +94,7 @@ export const getContentsUpdateContentUrl = (contentId: string) => {
 }
 
 /**
- * @summary 更新内容
+ * @summary 更新我的内容
  */
 export const contentsUpdateContent = async (
   contentId: string,
@@ -138,7 +138,7 @@ export const getContentsDeleteContentsUrl = () => {
 }
 
 /**
- * @summary 批量删除内容
+ * @summary 批量删除我的内容
  */
 export const contentsDeleteContents = async (
   contentBatchDeleteRequest: ContentBatchDeleteRequest,

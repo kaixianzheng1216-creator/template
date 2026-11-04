@@ -5,9 +5,6 @@
  * OpenAPI 规范版本： 0.1.0
  */
 
-/**
- * 内容所属用户响应。
- */
 export interface ContentOwnerResponse {
   /** 用户 ID */
   id: string
@@ -15,6 +12,6 @@ export interface ContentOwnerResponse {
   email: string
   /** 昵称 */
   name: string
-  /** 按昵称生成的头像地址 */
+  /** 头像地址 */
   avatar_url: string
 }

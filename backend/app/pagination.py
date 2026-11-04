@@ -6,8 +6,6 @@ from sqlmodel import Field, SQLModel
 
 
 class PaginationRequest(SQLModel):
-    """分页与排序参数。"""
-
     model_config = {"extra": "forbid"}
 
     skip: int = Field(default=0, ge=0, le=2**63 - 1, description="跳过记录数")
@@ -16,7 +14,5 @@ class PaginationRequest(SQLModel):
 
 
 class PaginationResponse[ResponseDataT](BaseModel):
-    """分页响应。"""
-
     data: list[ResponseDataT] = PydanticField(description="当前页数据")
     count: int = PydanticField(description="记录总数")
