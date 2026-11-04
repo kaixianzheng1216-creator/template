@@ -1,21 +1,21 @@
 from fastapi import status
 
-from app.exceptions import AppException
+from app.exceptions import AppError
 
 
-class UserNotFoundError(AppException):
+class UserNotFoundError(AppError):
     status_code = status.HTTP_404_NOT_FOUND
     code = "USER_NOT_FOUND"
-    message = "用户不存在"
+    detail = "用户不存在"
 
 
-class SelfManagementError(AppException):
+class SelfManagementError(AppError):
     status_code = status.HTTP_409_CONFLICT
     code = "SELF_MANAGEMENT_FORBIDDEN"
-    message = "不能修改自己的角色或状态"
+    detail = "不能修改自己的角色或状态"
 
 
-class ClerkRequestError(AppException):
-    status_code = status.HTTP_502_BAD_GATEWAY
-    code = "CLERK_REQUEST_FAILED"
-    message = "用户服务请求失败"
+class SelfDeletionError(AppError):
+    status_code = status.HTTP_409_CONFLICT
+    code = "SELF_DELETION_FORBIDDEN"
+    detail = "不能删除自己的账号"

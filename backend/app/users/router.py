@@ -1,31 +1,62 @@
+import uuid
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Path, Query
+from fastapi import APIRouter, Query, status
 
-from app.auth.dependencies import CurrentAdmin
+from app.auth.dependencies import CurrentAdmin, CurrentUser
+from app.database import DbDep
 from app.users import service
 from app.users.schemas import (
-    UserListQuery,
-    UserPublic,
-    UserRoleUpdate,
-    UsersPublic,
-    UserStatusUpdate,
+    UserBatchDeleteRequest,
+    UserListRequest,
+    UserListResponse,
+    UserProfileUpdateRequest,
+    UserResponse,
+    UserRoleUpdateRequest,
+    UserStatusUpdateRequest,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get(
+    "/me",
+    summary="获取当前用户",
+)
+def get_current_user(current_user: CurrentUser) -> UserResponse:
+    return UserResponse.model_validate(current_user)
+
+
+@router.put(
+    "/me",
+    summary="更新当前用户资料",
+)
+def update_current_user(
+    request: UserProfileUpdateRequest,
+    current_user: CurrentUser,
+    db: DbDep,
+) -> UserResponse:
+    user = service.update_user_profile(
+        user=current_user,
+        request=request,
+        db=db,
+    )
+
+    return UserResponse.model_validate(user)
+
+
+@router.get(
     "",
-    summary="分页获取用户列表",
+    summary="分页查询用户",
 )
 def list_users(
+    request: Annotated[UserListRequest, Query()],
     _current_admin: CurrentAdmin,
-    user_query: Annotated[UserListQuery, Query()],
-) -> UsersPublic:
-    users, total = service.list_users(user_query=user_query)
+    db: DbDep,
+) -> UserListResponse:
+    users, count = service.list_users(request=request, db=db)
 
-    return UsersPublic(data=users, count=total)
+    return UserListResponse.model_validate({"data": users, "count": count})
 
 
 @router.put(
@@ -33,15 +64,19 @@ def list_users(
     summary="更新用户角色",
 )
 def update_user_role(
+    user_id: uuid.UUID,
+    request: UserRoleUpdateRequest,
     current_user: CurrentAdmin,
-    user_id: Annotated[str, Path(max_length=255, description="Clerk 用户 ID")],
-    role_update: Annotated[UserRoleUpdate, Body(description="用户角色")],
-) -> UserPublic:
-    return service.update_user_role(
-        current_user=current_user,
+    db: DbDep,
+) -> UserResponse:
+    user = service.update_user_role(
         user_id=user_id,
-        is_admin=role_update.is_admin,
+        is_admin=request.is_admin,
+        current_user=current_user,
+        db=db,
     )
+
+    return UserResponse.model_validate(user)
 
 
 @router.put(
@@ -49,12 +84,29 @@ def update_user_role(
     summary="更新用户状态",
 )
 def update_user_status(
+    user_id: uuid.UUID,
+    request: UserStatusUpdateRequest,
     current_user: CurrentAdmin,
-    user_id: Annotated[str, Path(max_length=255, description="Clerk 用户 ID")],
-    status_update: Annotated[UserStatusUpdate, Body(description="用户状态")],
-) -> UserPublic:
-    return service.update_user_status(
-        current_user=current_user,
+    db: DbDep,
+) -> UserResponse:
+    user = service.update_user_status(
         user_id=user_id,
-        banned=status_update.banned,
+        is_active=request.is_active,
+        current_user=current_user,
+        db=db,
     )
+
+    return UserResponse.model_validate(user)
+
+
+@router.post(
+    "/bulk-delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="批量删除用户及其内容",
+)
+def delete_users(
+    request: UserBatchDeleteRequest,
+    current_user: CurrentAdmin,
+    db: DbDep,
+) -> None:
+    service.delete_users(user_ids=request.ids, current_user=current_user, db=db)

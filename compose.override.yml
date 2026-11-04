@@ -8,6 +8,9 @@ services:
       - "5432:5432"
 
   backend:
+    environment:
+      DEV_LOGIN_ENABLED: "true"
+      SESSION_COOKIE_SECURE: "false"
     ports:
       - "8000:8000"
     command:

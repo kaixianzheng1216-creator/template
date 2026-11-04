@@ -1,40 +1,63 @@
+import uuid
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
+from pydantic import StringConstraints
 from sqlmodel import Field, SQLModel
 
-from app.pagination import ListQuery, PaginationResponse
+from app.pagination import PaginationRequest, PaginationResponse
+
+UserName = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=255)
+]
 
 
-class UserListQuery(ListQuery):
-    full_name: str = Field(default="", max_length=255, description="姓名包含")
-    email: str = Field(default="", max_length=255, description="邮箱包含")
+class UserProfileUpdateRequest(SQLModel):
+    """用户资料更新请求。"""
+
+    model_config = {"extra": "forbid"}
+
+    name: UserName = Field(description="昵称")
+
+
+class UserListRequest(PaginationRequest):
+    """用户查询参数。"""
+
+    search: str = Field(default="", max_length=255, description="按邮箱或昵称搜索")
+    is_active: bool | None = Field(default=None, description="是否启用")
     sort: Literal["name", "created_at"] = "created_at"
-    banned: bool | None = Field(default=None, description="是否封禁")
 
 
-class UserRoleUpdate(SQLModel):
-    """更新 Clerk 用户角色。"""
+class UserRoleUpdateRequest(SQLModel):
+    """用户角色更新请求。"""
 
     is_admin: bool = Field(description="是否为管理员")
 
 
-class UserStatusUpdate(SQLModel):
-    """更新 Clerk 用户封禁状态。"""
+class UserStatusUpdateRequest(SQLModel):
+    """用户状态更新请求。"""
 
-    banned: bool = Field(description="是否封禁")
+    is_active: bool = Field(description="是否启用")
 
 
-class UserPublic(SQLModel):
-    """来自 Clerk 的用户公开数据。"""
+class UserBatchDeleteRequest(SQLModel):
+    """用户批量删除请求。"""
 
-    id: str = Field(description="Clerk 用户 ID")
-    email: str | None = Field(description="主邮箱")
-    full_name: str | None = Field(description="姓名")
-    banned: bool = Field(description="是否封禁")
+    ids: list[uuid.UUID] = Field(min_length=1, max_length=100)
+
+
+class UserResponse(SQLModel):
+    """用户响应。"""
+
+    id: uuid.UUID = Field(description="用户 ID")
+    email: str = Field(description="邮箱")
+    has_password: bool = Field(description="是否已设置密码")
+    name: str = Field(description="昵称")
+    avatar_url: str = Field(description="头像地址")
     is_admin: bool = Field(description="是否为管理员")
+    is_active: bool = Field(description="是否启用")
     created_at: datetime = Field(description="创建时间")
 
 
-class UsersPublic(PaginationResponse[UserPublic]):
-    """用户列表的响应数据。"""
+class UserListResponse(PaginationResponse[UserResponse]):
+    """用户列表响应。"""

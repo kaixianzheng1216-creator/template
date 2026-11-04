@@ -1,14 +1,18 @@
+from collections.abc import Mapping
 from typing import ClassVar
 
 from fastapi import status
+from starlette.exceptions import HTTPException
 
 
-class AppException(Exception):
-    """所有可安全返回给客户端的业务异常基类。"""
+class AppError(HTTPException):
+    """业务异常基类。"""
 
-    status_code: ClassVar[int] = status.HTTP_500_INTERNAL_SERVER_ERROR
+    status_code: int = status.HTTP_500_INTERNAL_SERVER_ERROR
     code: ClassVar[str] = "INTERNAL_SERVER_ERROR"
-    message: ClassVar[str] = "服务器内部错误"
+    detail: str = "服务器内部错误"
 
-    def __init__(self) -> None:
-        super().__init__(self.message)
+    def __init__(self, *, headers: Mapping[str, str] | None = None) -> None:
+        super().__init__(
+            status_code=self.status_code, detail=self.detail, headers=headers
+        )

@@ -20,13 +20,13 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     "/email-code", status_code=status.HTTP_204_NO_CONTENT, summary="发送邮箱验证码"
 )
 def send_email_code(
-    payload: EmailCodeSendRequest,
+    request: EmailCodeSendRequest,
     db: DbDep,
     response: Response,
 ) -> None:
     service.send_email_code(
-        email=payload.email,
-        purpose=payload.purpose,
+        email=request.email,
+        purpose=request.purpose,
         db=db,
     )
 
@@ -37,17 +37,17 @@ def send_email_code(
     "/login", status_code=status.HTTP_204_NO_CONTENT, summary="验证码或密码登录"
 )
 def login(
-    payload: EmailCodeLoginRequest | PasswordLoginRequest,
+    request: EmailCodeLoginRequest | PasswordLoginRequest,
     db: DbDep,
     response: Response,
 ) -> None:
-    if isinstance(payload, EmailCodeLoginRequest):
+    if isinstance(request, EmailCodeLoginRequest):
         session_data = service.login_with_email_code(
-            email=payload.email, email_code=payload.code, db=db
+            email=request.email, email_code=request.code, db=db
         )
     else:
         session_data = service.login_with_password(
-            email=payload.email, password=payload.password, db=db
+            email=request.email, password=request.password, db=db
         )
 
     _set_session_cookie(response, session_data)
@@ -63,11 +63,7 @@ def dev_login(db: DbDep, response: Response) -> None:
     if not settings.DEV_LOGIN_ENABLED:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="接口不存在")
 
-    session_data = service.login_with_password(
-        email=settings.ADMIN_EMAIL,
-        password=settings.ADMIN_PASSWORD.get_secret_value(),
-        db=db,
-    )
+    session_data = service.login_dev_admin(db=db)
 
     _set_session_cookie(response, session_data)
 
@@ -76,14 +72,14 @@ def dev_login(db: DbDep, response: Response) -> None:
     "/reset-password", status_code=status.HTTP_204_NO_CONTENT, summary="验证码重置密码"
 )
 def reset_password(
-    payload: PasswordResetRequest,
+    request: PasswordResetRequest,
     db: DbDep,
     response: Response,
 ) -> None:
     service.set_password_with_email_code(
-        email=payload.email,
-        email_code=payload.code,
-        password=payload.password,
+        email=request.email,
+        email_code=request.code,
+        password=request.password,
         db=db,
     )
 
@@ -96,15 +92,15 @@ def reset_password(
     summary="设置或修改密码并更新会话",
 )
 def set_password(
-    payload: PasswordUpdateRequest,
+    request: PasswordUpdateRequest,
     current_user: CurrentUser,
     db: DbDep,
     response: Response,
 ) -> None:
     session_data = service.set_password_with_email_code(
         email=current_user.email,
-        email_code=payload.code,
-        password=payload.password,
+        email_code=request.code,
+        password=request.password,
         db=db,
     )
 

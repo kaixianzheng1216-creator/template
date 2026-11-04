@@ -6,12 +6,12 @@ from fastapi import APIRouter, Query, status
 from app.auth.dependencies import CurrentAdmin, CurrentUser
 from app.contents import service
 from app.contents.schemas import (
-    AdminContentListQuery,
+    AdminContentListRequest,
     AdminContentListResponse,
     AdminContentResponse,
     ContentBatchDeleteRequest,
     ContentCreateRequest,
-    ContentListQuery,
+    ContentListRequest,
     ContentListResponse,
     ContentResponse,
     ContentUpdateRequest,
@@ -27,12 +27,12 @@ admin_router = APIRouter(prefix="/admin/contents", tags=["admin-contents"])
     summary="分页查询我的内容",
 )
 def list_contents(
-    query: Annotated[ContentListQuery, Query()],
+    request: Annotated[ContentListRequest, Query()],
     current_user: CurrentUser,
     db: DbDep,
 ) -> ContentListResponse:
     contents, count = service.list_contents(
-        query=query,
+        request=request,
         owner_id=current_user.id,
         db=db,
     )
@@ -46,12 +46,12 @@ def list_contents(
     summary="创建内容",
 )
 def create_content(
-    payload: ContentCreateRequest,
+    request: ContentCreateRequest,
     current_user: CurrentUser,
     db: DbDep,
 ) -> ContentResponse:
     content = service.create_content(
-        payload=payload,
+        request=request,
         owner_id=current_user.id,
         db=db,
     )
@@ -65,13 +65,13 @@ def create_content(
 )
 def update_content(
     content_id: uuid.UUID,
-    payload: ContentUpdateRequest,
+    request: ContentUpdateRequest,
     current_user: CurrentUser,
     db: DbDep,
 ) -> ContentResponse:
     content = service.update_content(
         content_id=content_id,
-        payload=payload,
+        request=request,
         owner_id=current_user.id,
         db=db,
     )
@@ -85,12 +85,12 @@ def update_content(
     summary="批量删除我的内容",
 )
 def delete_contents(
-    payload: ContentBatchDeleteRequest,
+    request: ContentBatchDeleteRequest,
     current_user: CurrentUser,
     db: DbDep,
 ) -> None:
     service.delete_contents(
-        content_ids=payload.ids,
+        content_ids=request.ids,
         owner_id=current_user.id,
         db=db,
     )
@@ -101,12 +101,12 @@ def delete_contents(
     summary="分页查询所有用户的内容",
 )
 def list_all_contents(
-    query: Annotated[AdminContentListQuery, Query()],
+    request: Annotated[AdminContentListRequest, Query()],
     _current_admin: CurrentAdmin,
     db: DbDep,
 ) -> AdminContentListResponse:
     content_owners, count = service.list_admin_contents(
-        query=query,
+        request=request,
         db=db,
     )
 
@@ -126,13 +126,13 @@ def list_all_contents(
 )
 def update_any_content(
     content_id: uuid.UUID,
-    payload: ContentUpdateRequest,
+    request: ContentUpdateRequest,
     _current_admin: CurrentAdmin,
     db: DbDep,
 ) -> ContentResponse:
     content = service.update_content(
         content_id=content_id,
-        payload=payload,
+        request=request,
         owner_id=None,
         db=db,
     )
@@ -146,12 +146,12 @@ def update_any_content(
     summary="批量删除用户内容",
 )
 def delete_any_contents(
-    payload: ContentBatchDeleteRequest,
+    request: ContentBatchDeleteRequest,
     _current_admin: CurrentAdmin,
     db: DbDep,
 ) -> None:
     service.delete_contents(
-        content_ids=payload.ids,
+        content_ids=request.ids,
         owner_id=None,
         db=db,
     )

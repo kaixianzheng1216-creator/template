@@ -128,6 +128,21 @@ def login_with_password(*, email: str, password: str, db: Session) -> AuthSessio
     return AuthSession(user_id=user.id, auth_version=user.auth_version)
 
 
+def login_dev_admin(*, db: Session) -> AuthSession:
+    user = db.exec(
+        select(User).where(
+            User.email == settings.ADMIN_EMAIL,
+            col(User.is_admin).is_(True),
+            col(User.is_active).is_(True),
+        )
+    ).one_or_none()
+
+    if user is None:
+        raise InvalidCredentialsError
+
+    return AuthSession(user_id=user.id, auth_version=user.auth_version)
+
+
 def set_password_with_email_code(
     *, email: str, email_code: str, password: str, db: Session
 ) -> AuthSession:

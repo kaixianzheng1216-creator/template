@@ -17,10 +17,13 @@ logger = logging.getLogger(__name__)
 
 def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(RequestValidationError, handle_validation_error)
+
     app.add_exception_handler(AppError, handle_app_error)
+
     app.add_exception_handler(HTTPException, handle_http_error)
 
     app.add_exception_handler(RedisConnectionError, handle_redis_error)
+
     app.add_exception_handler(RedisTimeoutError, handle_redis_error)
 
     app.add_exception_handler(Exception, handle_unexpected_error)
@@ -61,7 +64,7 @@ async def handle_app_error(
     return _create_error_response(
         status_code=error.status_code,
         code=error.code,
-        message=error.message,
+        message=error.detail,
         headers=error.headers,
     )
 

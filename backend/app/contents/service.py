@@ -9,9 +9,9 @@ from sqlmodel.sql.expression import Select, SelectOfScalar
 from app.contents.exceptions import ContentNotFoundError
 from app.contents.models import Content
 from app.contents.schemas import (
-    AdminContentListQuery,
+    AdminContentListRequest,
     ContentCreateRequest,
-    ContentListQuery,
+    ContentListRequest,
     ContentUpdateRequest,
 )
 from app.users.models import User
@@ -19,23 +19,23 @@ from app.users.models import User
 
 def list_contents(
     *,
-    query: ContentListQuery,
+    request: ContentListRequest,
     owner_id: uuid.UUID,
     db: Session,
 ) -> tuple[list[Content], int]:
     statement = select(Content).where(Content.owner_id == owner_id)
 
-    return _paginate_contents(statement=statement, query=query, db=db)
+    return _paginate_contents(statement=statement, request=request, db=db)
 
 
 def create_content(
     *,
-    payload: ContentCreateRequest,
+    request: ContentCreateRequest,
     owner_id: uuid.UUID,
     db: Session,
 ) -> Content:
     content = Content.model_validate(
-        payload,
+        request,
         update={"owner_id": owner_id},
     )
 
@@ -51,7 +51,7 @@ def create_content(
 def update_content(
     *,
     content_id: uuid.UUID,
-    payload: ContentUpdateRequest,
+    request: ContentUpdateRequest,
     owner_id: uuid.UUID | None,
     db: Session,
 ) -> Content:
@@ -65,7 +65,7 @@ def update_content(
     if content is None:
         raise ContentNotFoundError
 
-    content.sqlmodel_update(payload.model_dump())
+    content.sqlmodel_update(request.model_dump())
 
     db.commit()
 
@@ -99,10 +99,10 @@ def delete_contents(
 
 def list_admin_contents(
     *,
-    query: AdminContentListQuery,
+    request: AdminContentListRequest,
     db: Session,
 ) -> tuple[list[tuple[Content, User]], int]:
-    owner_search = query.owner.strip()
+    owner_search = request.owner.strip()
 
     statement = select(Content, User).join(User)
 
@@ -114,16 +114,16 @@ def list_admin_contents(
             )
         )
 
-    return _paginate_contents(statement=statement, query=query, db=db)
+    return _paginate_contents(statement=statement, request=request, db=db)
 
 
 def _paginate_contents[T](
     *,
     statement: SelectOfScalar[T] | Select[T],
-    query: ContentListQuery,
+    request: ContentListRequest,
     db: Session,
 ) -> tuple[list[T], int]:
-    search = query.search.strip()
+    search = request.search.strip()
 
     if search:
         statement = statement.where(
@@ -133,24 +133,24 @@ def _paginate_contents[T](
             )
         )
 
-    if query.created_after is not None:
-        statement = statement.where(col(Content.created_at) >= query.created_after)
+    if request.created_after is not None:
+        statement = statement.where(col(Content.created_at) >= request.created_after)
 
     count = db.exec(select(func.count()).select_from(statement.subquery())).one()
 
     sort_column: Mapped[str] | Mapped[datetime]
 
-    if query.sort == "title":
+    if request.sort == "title":
         sort_column = col(Content.title)
     else:
         sort_column = col(Content.created_at)
 
-    if query.order == "asc":
+    if request.order == "asc":
         statement = statement.order_by(sort_column.asc(), col(Content.id))
     else:
         statement = statement.order_by(sort_column.desc(), col(Content.id))
 
-    statement = statement.offset(query.skip).limit(query.limit)
+    statement = statement.offset(request.skip).limit(request.limit)
 
     contents = list(db.exec(statement).all())
 

@@ -22,6 +22,7 @@ def upgrade() -> None:
         sa.Column("email", sa.String(length=254), nullable=False),
         sa.Column("password_hash", sa.String(length=255)),
         sa.Column("name", sa.String(length=255), nullable=False),
+        sa.Column("avatar_url", sa.String(length=2048), nullable=False),
         sa.Column("is_admin", sa.Boolean(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
         sa.Column("auth_version", sa.Integer(), nullable=False),

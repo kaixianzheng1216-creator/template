@@ -1,142 +1,147 @@
-from collections.abc import Callable
-from datetime import UTC, datetime
-from http import HTTPStatus
+import uuid
+from datetime import datetime
 
-from clerk_backend_api.models import (
-    ClerkBaseError,
-    GetUserListRequest,
-    GetUsersCountRequest,
-    User,
-)
-from httpx import HTTPError
+from sqlalchemy import or_
+from sqlalchemy.orm import Mapped
+from sqlmodel import Session, col, delete, func, select
 
-from app.auth.service import AuthenticatedUser
-from app.clerk import clerk
+from app.contents.models import Content
 from app.users.exceptions import (
-    ClerkRequestError,
+    SelfDeletionError,
     SelfManagementError,
     UserNotFoundError,
 )
-from app.users.schemas import UserListQuery, UserPublic
+from app.users.models import User
+from app.users.schemas import UserListRequest, UserProfileUpdateRequest
 
 
-def list_users(*, user_query: UserListQuery) -> tuple[list[UserPublic], int]:
-    name = user_query.full_name.strip() or None
-    email = user_query.email.strip() or None
+def update_user_profile(
+    *,
+    user: User,
+    request: UserProfileUpdateRequest,
+    db: Session,
+) -> User:
+    user.sqlmodel_update(request.model_dump())
 
-    sort_field = "created_at"
+    db.commit()
 
-    if user_query.sort == "name":
-        sort_field = "first_name"
+    db.refresh(user)
 
-    sort_prefix = "-"
+    return user
 
-    if user_query.order == "asc":
-        sort_prefix = "+"
 
-    count_request = GetUsersCountRequest(
-        name_query=name,
-        email_address_query=email,
-        banned=user_query.banned,
-    )
+def list_users(
+    *,
+    request: UserListRequest,
+    db: Session,
+) -> tuple[list[User], int]:
+    search = request.search.strip()
+    statement = select(User)
 
-    list_request = GetUserListRequest(
-        name_query=name,
-        email_address_query=email,
-        banned=user_query.banned,
-        offset=user_query.skip,
-        limit=user_query.limit,
-        order_by=f"{sort_prefix}{sort_field}",
-    )
+    if search:
+        statement = statement.where(
+            or_(
+                col(User.name).icontains(search, autoescape=True),
+                col(User.email).icontains(search, autoescape=True),
+            )
+        )
 
-    total = _call_clerk(lambda: clerk.users.count(request=count_request)).total_count
+    if request.is_active is not None:
+        statement = statement.where(User.is_active == request.is_active)
 
-    users = _call_clerk(lambda: clerk.users.list(request=list_request))
+    count = db.exec(select(func.count()).select_from(statement.subquery())).one()
 
-    public_users: list[UserPublic] = []
+    sort_column: Mapped[str] | Mapped[datetime]
 
-    for user in users:
-        public_users.append(_to_user_public(user))
+    if request.sort == "name":
+        sort_column = col(User.name)
+    else:
+        sort_column = col(User.created_at)
 
-    return public_users, total
+    if request.order == "asc":
+        sort_order = sort_column.asc()
+    else:
+        sort_order = sort_column.desc()
+
+    statement = statement.order_by(sort_order, col(User.id))
+    statement = statement.offset(request.skip).limit(request.limit)
+
+    users = list(db.exec(statement).all())
+
+    return users, count
 
 
 def update_user_role(
     *,
-    current_user: AuthenticatedUser,
-    user_id: str,
+    user_id: uuid.UUID,
     is_admin: bool,
-) -> UserPublic:
-    if user_id == current_user.user_id:
+    current_user: User,
+    db: Session,
+) -> User:
+    if user_id == current_user.id:
         raise SelfManagementError
 
-    role = "member"
+    user = _get_user_for_update(user_id=user_id, db=db)
 
-    if is_admin:
-        role = "admin"
+    user.is_admin = is_admin
 
-    user = _call_clerk(
-        lambda: clerk.users.update_metadata(
-            user_id=user_id,
-            public_metadata={"role": role},
-        )
-    )
-    return _to_user_public(user)
+    db.commit()
+
+    db.refresh(user)
+
+    return user
 
 
 def update_user_status(
     *,
-    current_user: AuthenticatedUser,
-    user_id: str,
-    banned: bool,
-) -> UserPublic:
-    if user_id == current_user.user_id:
+    user_id: uuid.UUID,
+    is_active: bool,
+    current_user: User,
+    db: Session,
+) -> User:
+    if user_id == current_user.id:
         raise SelfManagementError
 
-    if banned:
-        user = _call_clerk(lambda: clerk.users.ban(user_id=user_id))
-    else:
-        user = _call_clerk(lambda: clerk.users.unban(user_id=user_id))
+    user = _get_user_for_update(user_id=user_id, db=db)
 
-    return _to_user_public(user)
+    user.is_active = is_active
 
+    if not is_active:
+        user.auth_version += 1
 
-def _call_clerk[ResultT](
-    operation: Callable[[], ResultT],
-) -> ResultT:
-    try:
-        return operation()
-    except ClerkBaseError as error:
-        if error.status_code == HTTPStatus.NOT_FOUND:
-            raise UserNotFoundError from error
-        raise ClerkRequestError from error
-    except HTTPError as error:
-        raise ClerkRequestError from error
+    db.commit()
+
+    db.refresh(user)
+
+    return user
 
 
-def _to_user_public(user: User) -> UserPublic:
-    email = None
+def delete_users(*, user_ids: list[uuid.UUID], current_user: User, db: Session) -> None:
+    ids = set(user_ids)
 
-    for address in user.email_addresses:
-        if address.id == user.primary_email_address_id:
-            email = address.email_address
-            break
+    if current_user.id in ids:
+        raise SelfDeletionError
 
-    name_parts: list[str] = []
+    existing_ids = db.exec(
+        select(User.id)
+        .where(col(User.id).in_(ids))
+        .order_by(col(User.id))
+        .with_for_update()
+    ).all()
 
-    if user.first_name:
-        name_parts.append(user.first_name)
+    if len(existing_ids) != len(ids):
+        raise UserNotFoundError
 
-    if user.last_name:
-        name_parts.append(user.last_name)
+    db.exec(delete(Content).where(col(Content.owner_id).in_(ids)))
+    db.exec(delete(User).where(col(User.id).in_(ids)))
 
-    full_name = " ".join(name_parts) or None
+    db.commit()
 
-    return UserPublic(
-        id=user.id,
-        email=email,
-        full_name=full_name,
-        banned=user.banned,
-        is_admin=user.public_metadata.get("role") == "admin",
-        created_at=datetime.fromtimestamp(user.created_at / 1000, tz=UTC),
-    )
+
+def _get_user_for_update(*, user_id: uuid.UUID, db: Session) -> User:
+    user = db.get(User, user_id, with_for_update=True)
+
+    if user is None:
+        raise UserNotFoundError
+
+    return user
