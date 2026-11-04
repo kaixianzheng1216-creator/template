@@ -19,29 +19,30 @@ FROM dependencies AS development
 
 COPY . .
 
-CMD ["pnpm", "dev", "--hostname", "0.0.0.0"]
+CMD ["pnpm", "dev", "--hostname", "0.0.0.0", "--port", "3000"]
 
 
 FROM dependencies AS build
 
 ARG BACKEND_URL
 ARG NEXT_PUBLIC_PROJECT_NAME
-ARG NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 
 ENV BACKEND_URL=$BACKEND_URL
 ENV NEXT_PUBLIC_PROJECT_NAME=$NEXT_PUBLIC_PROJECT_NAME
-ENV NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=$NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
 ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY . .
 
-RUN pnpm build
+RUN test -n "$BACKEND_URL" \
+    && test -n "$NEXT_PUBLIC_PROJECT_NAME" \
+    && pnpm build
 
 
 FROM node:24-alpine AS production
 
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
+ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
 WORKDIR /app

@@ -25,6 +25,10 @@ class EmailCodeSendRequest(EmailRequest):
     purpose: EmailCodePurpose = Field(default="email_login", description="验证码用途")
 
 
+class EmailCodeSendResponse(SQLModel):
+    has_password: bool = Field(description="是否已设置密码")
+
+
 class EmailCodeLoginRequest(EmailRequest):
     code: EmailCode = Field(description="邮箱验证码")
 

@@ -6,6 +6,7 @@ from app.auth.schemas import (
     AuthSession,
     EmailCodeLoginRequest,
     EmailCodeSendRequest,
+    EmailCodeSendResponse,
     PasswordLoginRequest,
     PasswordResetRequest,
     PasswordUpdateRequest,
@@ -16,17 +17,17 @@ from app.database import DbDep
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post(
-    "/email-code", status_code=status.HTTP_204_NO_CONTENT, summary="发送邮箱验证码"
-)
+@router.post("/email-code", summary="发送邮箱验证码")
 def send_email_code(
     request: EmailCodeSendRequest,
     db: DbDep,
     response: Response,
-) -> None:
-    service.send_email_code(request=request, db=db)
+) -> EmailCodeSendResponse:
+    has_password = service.send_email_code(request=request, db=db)
 
     response.headers["Cache-Control"] = "no-store"
+
+    return EmailCodeSendResponse(has_password=has_password)
 
 
 @router.post(

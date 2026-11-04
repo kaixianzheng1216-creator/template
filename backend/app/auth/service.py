@@ -55,7 +55,7 @@ password_hasher = PasswordHash.recommended()
 DUMMY_PASSWORD_HASH = password_hasher.hash("not-the-user-password")
 
 
-def send_email_code(*, request: EmailCodeSendRequest, db: Session) -> None:
+def send_email_code(*, request: EmailCodeSendRequest, db: Session) -> bool:
     email = request.email
     purpose = request.purpose
 
@@ -74,10 +74,10 @@ def send_email_code(*, request: EmailCodeSendRequest, db: Session) -> None:
     user = db.exec(select(User).where(User.email == email)).one_or_none()
 
     if user is not None and not user.is_active:
-        return
+        return False
 
     if user is None and purpose == "password_reset":
-        return
+        return False
 
     email_code = f"{secrets.randbelow(1_000_000):06d}"
 
@@ -95,6 +95,11 @@ def send_email_code(*, request: EmailCodeSendRequest, db: Session) -> None:
         email_code=email_code,
         expires_in_seconds=EMAIL_CODE_TTL_SECONDS,
     )
+
+    if user is None:
+        return False
+
+    return user.has_password
 
 
 def login_with_email_code(

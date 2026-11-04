@@ -7,6 +7,7 @@
 import type {
   EmailCodeLoginRequest,
   EmailCodeSendRequest,
+  EmailCodeSendResponse,
   PasswordLoginRequest,
   PasswordResetRequest,
   PasswordUpdateRequest,
@@ -24,7 +25,7 @@ export const getAuthSendEmailCodeUrl = () => {
 export const authSendEmailCode = async (
   emailCodeSendRequest: EmailCodeSendRequest,
   options?: Parameters<typeof apiFetch>[1]
-): Promise<void> => {
+): Promise<EmailCodeSendResponse> => {
   const getHeaders = (
     h?: NonNullable<RequestInit["headers"]>
   ): Record<string, string | readonly string[]> => {
@@ -46,7 +47,7 @@ export const authSendEmailCode = async (
     }
     return headers
   }
-  return apiFetch<void>(getAuthSendEmailCodeUrl(), {
+  return apiFetch<EmailCodeSendResponse>(getAuthSendEmailCodeUrl(), {
     ...options,
     method: "POST",
     headers: {

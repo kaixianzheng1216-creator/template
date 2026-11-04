@@ -3,7 +3,7 @@ import * as React from "react"
 import { loadHighlighter } from "@/lib/highlighter"
 
 export function useHighlightedCode(value: string, language: string) {
-  // A trailing newline would render as an extra empty line.
+  // 末尾的换行符会额外渲染一个空行。
   const code = value.endsWith("\n") ? value.slice(0, -1) : value
   const [loaded, setLoaded] = React.useState<{
     language: string
@@ -27,8 +27,8 @@ export function useHighlightedCode(value: string, language: string) {
     }
   }, [language])
 
-  // The complete lines, highlighted. While the code streams, only the new
-  // lines are tokenized, starting from the grammar state of the last one.
+  // 对完整行进行高亮。流式输入代码时，仅处理新增的行，
+  // 并从上一行结束后的语法状态继续进行词法分析。
   const [done, setDone] = React.useState<{
     highlighter: typeof highlighter
     text: string
@@ -62,7 +62,7 @@ export function useHighlightedCode(value: string, language: string) {
     setDone(next)
   }
 
-  // The last line is still being written, so it is tokenized on every render.
+  // 最后一行仍在写入，因此每次渲染都重新进行词法分析。
   const tail = code.slice(end)
 
   return React.useMemo(() => {
